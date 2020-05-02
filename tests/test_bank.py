@@ -19,5 +19,13 @@ class BankTest(unittest.TestCase):
 
         self.assertEqual(200, account.balance)
 
+    def test_withdraw(self):
+        account = Account(100)
+        bank = Bank()
+
+        bank.withdraw_from_account(account, 100)
+
+        self.assertEqual(0, account.balance)
+
 if __name__ == '__main__':
     unittest.main()

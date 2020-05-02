@@ -9,4 +9,6 @@ class Account():
     def _deposit(self, amount):
         self.balance += amount
 
+    def _withdraw(self, amount):
+        self.balance -= amount
     
