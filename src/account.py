@@ -10,5 +10,6 @@ class Account():
         self.balance += amount
 
     def _withdraw(self, amount):
-        self.balance -= amount
+        if (amount <= self.balance):
+            self.balance -= amount
     
