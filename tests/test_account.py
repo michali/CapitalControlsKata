@@ -1,10 +1,10 @@
 from src.bank import Bank
-from src.account import BankAccount
+from src.account import Account
 import unittest
 
 class BankTest(unittest.TestCase):
     def test_deposit_to_account(self):
-        account = BankAccount()
+        account = Account()
         bank = Bank()
 
         bank.deposit_to_account(account, 100)
