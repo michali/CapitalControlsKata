@@ -1,3 +1,5 @@
+from src.account_result import AccountResult
+
 class Account():
     
     def __init__(self, initial_amount = None):
@@ -8,13 +10,20 @@ class Account():
 
     def _deposit(self, amount):
         self.balance += amount
+        return AccountResult.Success
 
     def _withdraw(self, amount):
-        if (amount <= self.balance):
-            self.balance -= amount
+        if (amount > self.balance):
+            return AccountResult.InsufficientFunds
+
+        self.balance -= amount      
+        return AccountResult.Success
 
     def _transfer(self, account, amount):
-        if (amount <= self.balance):
-            self.balance -= amount
-            account.balance += amount
+        if (amount > self.balance):
+            return AccountResult.InsufficientFunds
+        
+        self.balance -= amount
+        account.balance += amount
+        return AccountResult.Success
     
