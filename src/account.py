@@ -12,4 +12,9 @@ class Account():
     def _withdraw(self, amount):
         if (amount <= self.balance):
             self.balance -= amount
+
+    def _transfer(self, account, amount):
+        if (amount <= self.balance):
+            self.balance -= amount
+            account.balance += amount
     

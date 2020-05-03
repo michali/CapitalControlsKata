@@ -8,9 +8,4 @@ class Bank():
 
     def transfer(self, account_from, account_to, amount):
         initial_from_balance = account_from.balance
-        account_from._withdraw(amount)
-
-        if (account_from.balance == initial_from_balance):
-            return
-
-        account_to._deposit(amount)
+        account_from._transfer(account_to, amount)
