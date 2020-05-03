@@ -7,5 +7,4 @@ class Bank():
         account._withdraw(amount)
 
     def transfer(self, account_from, account_to, amount):
-        initial_from_balance = account_from.balance
         account_from._transfer(account_to, amount)
