@@ -6,7 +6,7 @@ class Bank():
     def withdraw_from_account(self, account, amount):
         account._withdraw(amount)
 
-    def e_transfer(self, account_from, account_to, amount):
+    def transfer(self, account_from, account_to, amount):
         initial_from_balance = account_from.balance
         account_from._withdraw(amount)
 

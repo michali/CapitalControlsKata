@@ -40,17 +40,17 @@ class BankTest(unittest.TestCase):
         account_to = Account(100)
         bank = Bank()
 
-        bank.e_transfer(account_from, account_to, 50)
+        bank.transfer(account_from, account_to, 50)
 
         self.assertEqual(50, account_from.balance)
         self.assertEqual(150, account_to.balance)
 
-    def test_eletronic_transfer_overdraft_doesnotallow(self):
+    def test_transfer_overdraft_doesnotallow(self):
         account_from = Account(100)
         account_to = Account(100)
         bank = Bank()
 
-        bank.e_transfer(account_from, account_to, 101)
+        bank.transfer(account_from, account_to, 101)
 
         self.assertEqual(100, account_from.balance)
         self.assertEqual(100, account_to.balance)
