@@ -28,5 +28,8 @@ class Account():
         return AccountResult.Success
     
     def _transfer_abroad(self, amount):
+        if (amount > self.balance):
+            return AccountResult.InsufficientFunds
+
         self.balance -= amount
         return AccountResult.Success
