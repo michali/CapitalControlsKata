@@ -8,3 +8,6 @@ class Bank():
 
     def transfer(self, account_from, account_to, amount):
         return account_from._transfer(account_to, amount)
+
+    def transfer_abroad(self, account, amount):
+        return account._transfer_abroad(amount)

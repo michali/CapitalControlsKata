@@ -27,3 +27,6 @@ class Account():
         account.balance += amount
         return AccountResult.Success
     
+    def _transfer_abroad(self, amount):
+        self.balance -= amount
+        return AccountResult.Success

@@ -62,6 +62,14 @@ class BankTest(unittest.TestCase):
         self.assertEqual(100, account_from.balance)
         self.assertEqual(100, account_to.balance)
 
+    def test_transfer_abroad(self):
+        account = Account(100)
+        bank = Bank()
+
+        result = bank.transfer_abroad(account, 50)
+
+        self.assertEqual(AccountResult.Success, result)
+        self.assertEqual(50, account.balance)
 
 if __name__ == '__main__':
     unittest.main()
