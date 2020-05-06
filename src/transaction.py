@@ -3,7 +3,7 @@ from enum import Enum
 class TransactionType(Enum):
     Credit = 1
 
-class OperationStatus(Enum):
+class OperationResult(Enum):
     Success = 1
 
 class Transaction():

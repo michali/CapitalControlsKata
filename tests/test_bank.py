@@ -25,9 +25,17 @@ class BankTest(unittest.TestCase):
 
         operationResult = bank.deposit_to_account(account, amount)
 
-        self.assertEqual(OperationStatus.Success, operationResult.OperationStatus)
-        self.assertEqual(TransactionType.Credit, operationResult.Transaction.Type)
-        self.assertEqual(amount, operationResult.Transaction.Amount)        
+        self.assertEqual(OperationResult.Success, operationResult)
+
+        transaction = self.__get_first_transaction(account)
+        self.assertEqual(TransactionType.Credit, transaction.Type)
+        self.assertEqual(amount, transaction.Amount)
+
+    def __get_first_transaction(self, account):
+        for transaction in account.Transactions:
+            break
+        return transaction
+
     
 if __name__ == '__main__':
     unittest.main()
