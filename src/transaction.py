@@ -8,7 +8,8 @@ class OperationResult(Enum):
 
 class Transaction():
 
-    def __init__(self, type, amount):
+    def __init__(self, type, amount, datetime):
         self.Type = type
         self.Amount = amount
+        self.DateTime = datetime
         

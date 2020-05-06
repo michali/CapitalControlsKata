@@ -1,9 +1,10 @@
 from src.bank import Bank
 from src.account import Account
 from src.transaction import *
+from unittest.mock import Mock
 from parameterized import parameterized, parameterized_class
-
 import unittest
+import datetime;
 
 class BankTest(unittest.TestCase):
     def test_deposit_to_account_updates_balance(self):
@@ -31,9 +32,16 @@ class BankTest(unittest.TestCase):
        (300,),
     ])
     def test_deposit_to_account_creates_transaction(self, amount):
-        account = Account()
-        bank = Bank()
+        class DateTimeMock(datetime.datetime):
+            @classmethod
+            def now(cls):
+                return cls(2020, 1, 1, 15, 45, 0)
 
+        daatetimemock = DateTimeMock
+
+        account = Account(daatetimemock)
+        bank = Bank()
+                
         operationResult = bank.deposit_to_account(account, amount)
 
         self.assertEqual(OperationResult.Success, operationResult)
@@ -41,6 +49,7 @@ class BankTest(unittest.TestCase):
         transaction = self.__get_first_transaction(account)
         self.assertEqual(TransactionType.Credit, transaction.Type)
         self.assertEqual(amount, transaction.Amount)
+        self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
 
     def __get_first_transaction(self, account):
         for transaction in account.Transactions:
