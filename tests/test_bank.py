@@ -6,13 +6,24 @@ from parameterized import parameterized, parameterized_class
 import unittest
 
 class BankTest(unittest.TestCase):
-    def test_deposit_to_account_adds_to_balance(self):
+    def test_deposit_to_account_updates_balance(self):
         account = Account()
         bank = Bank()
 
         bank.deposit_to_account(account, 100)
 
         self.assertEqual(100, account.balance)
+
+    def test_deposit_to_account_add_balances(self):
+        account = Account()
+        bank = Bank()
+
+        operationResult = bank.deposit_to_account(account, 100)
+        operationResult = bank.deposit_to_account(account, 50)
+
+        self.assertEqual(OperationResult.Success, operationResult)
+
+        self.assertEqual(150, account.balance)
 
     @parameterized.expand([
        (100,),
