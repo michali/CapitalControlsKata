@@ -8,6 +8,7 @@ class OperationStatus(Enum):
 
 class Transaction():
 
-    def __init__(self, type):
+    def __init__(self, type, amount):
         self.Type = type
+        self.Amount = amount
         

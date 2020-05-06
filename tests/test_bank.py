@@ -1,6 +1,7 @@
 from src.bank import Bank
 from src.account import Account
 from src.transaction import *
+from parameterized import parameterized, parameterized_class
 
 import unittest
 
@@ -13,14 +14,20 @@ class BankTest(unittest.TestCase):
 
         self.assertEqual(100, account.balance)
 
-    def test_deposit_to_account_creates_transaction(self):
+    @parameterized.expand([
+       (100,),
+       (200,),
+       (300,),
+    ])
+    def test_deposit_to_account_creates_transaction(self, amount):
         account = Account()
         bank = Bank()
 
-        operationResult = bank.deposit_to_account(account, 100)
+        operationResult = bank.deposit_to_account(account, amount)
 
         self.assertEqual(OperationStatus.Success, operationResult.OperationStatus)
         self.assertEqual(TransactionType.Credit, operationResult.Transaction.Type)
-        
+        self.assertEqual(amount, operationResult.Transaction.Amount)        
+    
 if __name__ == '__main__':
     unittest.main()

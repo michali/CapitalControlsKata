@@ -8,4 +8,4 @@ class Account():
         
     def _deposit(self, amount):
         self.balance += amount
-        return OperationResult(Transaction(TransactionType.Credit), OperationStatus.Success)
+        return OperationResult(Transaction(TransactionType.Credit, amount), OperationStatus.Success)
