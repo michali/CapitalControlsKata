@@ -37,9 +37,9 @@ class BankTest(unittest.TestCase):
             def now(cls):
                 return cls(2020, 1, 1, 15, 45, 0)
 
-        daatetimemock = DateTimeMock
+        datetimemock = DateTimeMock
 
-        account = Account(daatetimemock)
+        account = Account(datetimemock)
         bank = Bank()
                 
         operationResult = bank.deposit_to_account(account, amount)
@@ -51,11 +51,38 @@ class BankTest(unittest.TestCase):
         self.assertEqual(amount, transaction.Amount)
         self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
 
+    @parameterized.expand([
+       (100, 50),
+       (200, 100),
+       (300, 100),
+    ])
+    def test_withdraw_removes_from_balance(self, initialbalance, withdrawalamount):
+        account = Account()
+        bank = Bank()
+
+        bank.deposit_to_account(account, initialbalance)
+
+        result = bank.withdraw_from_account(account, withdrawalamount)
+
+        self.assertEqual(OperationResult.Success, result)
+        self.assertEqual(initialbalance - withdrawalamount, account.balance)
+
+    def test_withdraw_overdraft_results_in_error(self):
+        account = Account()
+        bank = Bank()
+
+        bank.deposit_to_account(account, 100)
+
+        result = bank.withdraw_from_account(account, 200)
+
+        self.assertEqual(OperationResult.InsufficientFunds, result)
+        self.assertEqual(account.balance, 100)
+    
+
     def __get_first_transaction(self, account):
         for transaction in account.Transactions:
             break
         return transaction
-
-    
+        
 if __name__ == '__main__':
     unittest.main()
