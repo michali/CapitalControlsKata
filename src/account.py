@@ -5,15 +5,19 @@ class Account():
     
     def __init__(self):
         self.__balance = 0
-        self.Transactions = set()
+        self.__transactions = set()
 
     @property
     def balance(self):
         return self.__balance
+
+    @property
+    def Transactions(self):
+        return self.__transactions
         
     def _deposit(self, amount, datetime):
         self.__balance += amount
-        self.Transactions.add(Transaction(TransactionType.Credit, amount, datetime))
+        self.__transactions.add(Transaction(TransactionType.Credit, amount, datetime))
         return OperationResult.Success
 
     def _withdraw(self, amount, datetime):
@@ -21,5 +25,5 @@ class Account():
             return OperationResult.InsufficientFunds
 
         self.__balance -= amount
-        self.Transactions.add(Transaction(TransactionType.Debit, amount, datetime))
+        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime))
         return OperationResult.Success
