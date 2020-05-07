@@ -39,8 +39,8 @@ class BankTest(unittest.TestCase):
 
         datetimemock = DateTimeMock
 
-        account = Account(datetimemock)
-        bank = Bank()
+        account = Account()
+        bank = Bank(datetimemock)
                 
         operationResult = bank.deposit_to_account(account, amount)
 
@@ -88,9 +88,8 @@ class BankTest(unittest.TestCase):
                 return cls(2020, 1, 1, 15, 45, 0)        
         datetimemock = DateTimeMock
 
-        account = Account(datetimemock)
-
-        bank = Bank()
+        account = Account()
+        bank = Bank(datetimemock)
         bank.deposit_to_account(account, 100)
 
         bank.withdraw_from_account(account, withdrawal_amount)
@@ -98,7 +97,7 @@ class BankTest(unittest.TestCase):
         self.assertNotEqual(None, transaction)
         self.assertEqual(withdrawal_amount, transaction.Amount)
         self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
-
+        
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
             if (condition(transaction)):

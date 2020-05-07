@@ -3,24 +3,23 @@ import datetime
 
 class Account():
     
-    def __init__(self, datetime = datetime.datetime):
+    def __init__(self):
         self.__balance = 0
         self.Transactions = set()
-        self.datetime = datetime
 
     @property
     def balance(self):
         return self.__balance
         
-    def _deposit(self, amount):
+    def _deposit(self, amount, datetime):
         self.__balance += amount
-        self.Transactions.add(Transaction(TransactionType.Credit, amount, self.datetime.now()))
+        self.Transactions.add(Transaction(TransactionType.Credit, amount, datetime))
         return OperationResult.Success
 
-    def _withdraw(self, amount):
+    def _withdraw(self, amount, datetime):
         if (self.__balance < amount):
             return OperationResult.InsufficientFunds
 
         self.__balance -= amount
-        self.Transactions.add(Transaction(TransactionType.Debit, amount, self.datetime.now()))
+        self.Transactions.add(Transaction(TransactionType.Debit, amount, datetime))
         return OperationResult.Success
