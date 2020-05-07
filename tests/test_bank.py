@@ -59,7 +59,6 @@ class BankTest(unittest.TestCase):
     def test_withdraw_removes_from_balance(self, initialbalance, withdrawalamount):
         account = Account()
         bank = Bank()
-
         bank.deposit_to_account(account, initialbalance)
 
         result = bank.withdraw_from_account(account, withdrawalamount)
@@ -70,7 +69,6 @@ class BankTest(unittest.TestCase):
     def test_withdraw_overdraft_results_in_error(self):
         account = Account()
         bank = Bank()
-
         bank.deposit_to_account(account, 100)
 
         result = bank.withdraw_from_account(account, 200)
@@ -78,6 +76,20 @@ class BankTest(unittest.TestCase):
         self.assertEqual(OperationResult.InsufficientFunds, result)
         self.assertEqual(account.balance, 100)
     
+    def test_withdraw_creates_transaction(self):
+        account = Account()
+        bank = Bank()
+        bank.deposit_to_account(account, 100)
+
+        bank.withdraw_from_account(account, 100)
+        transaction = self.__get_transaction(account, lambda t: t.Type == TransactionType.Debit)
+        self.assertNotEqual(None, transaction)
+
+    def __get_transaction(self, account, condition):
+        for transaction in account.Transactions:
+            if (condition(transaction)):
+                return transaction
+        return None
 
     def __get_first_transaction(self, account):
         for transaction in account.Transactions:

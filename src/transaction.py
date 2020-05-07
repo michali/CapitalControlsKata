@@ -2,7 +2,8 @@ from enum import Enum
 
 class TransactionType(Enum):
     Credit = 1
-
+    Debit = 2
+    
 class OperationResult(Enum):
     Success = 1
     InsufficientFunds = 2
