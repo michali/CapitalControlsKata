@@ -8,7 +8,7 @@ class Account():
         self.__transactions = set()
 
     @property
-    def balance(self):
+    def Balance(self):
         return self.__balance
 
     @property
