@@ -76,14 +76,28 @@ class BankTest(unittest.TestCase):
         self.assertEqual(OperationResult.InsufficientFunds, result)
         self.assertEqual(account.balance, 100)
     
-    def test_withdraw_creates_transaction(self):
-        account = Account()
+    @parameterized.expand([
+       (100,),
+       (50,),
+       (30,),
+    ])
+    def test_withdraw_creates_transaction(self, withdrawal_amount):
+        class DateTimeMock(datetime.datetime):
+            @classmethod
+            def now(cls):
+                return cls(2020, 1, 1, 15, 45, 0)        
+        datetimemock = DateTimeMock
+
+        account = Account(datetimemock)
+
         bank = Bank()
         bank.deposit_to_account(account, 100)
 
-        bank.withdraw_from_account(account, 100)
+        bank.withdraw_from_account(account, withdrawal_amount)
         transaction = self.__get_transaction(account, lambda t: t.Type == TransactionType.Debit)
         self.assertNotEqual(None, transaction)
+        self.assertEqual(withdrawal_amount, transaction.Amount)
+        self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
 
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:

@@ -22,5 +22,5 @@ class Account():
             return OperationResult.InsufficientFunds
 
         self.__balance -= amount
-        self.Transactions.add(Transaction(TransactionType.Debit, 1, datetime.datetime(2020, 1, 1)))
+        self.Transactions.add(Transaction(TransactionType.Debit, amount, self.datetime.now()))
         return OperationResult.Success
