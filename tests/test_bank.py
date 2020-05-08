@@ -66,12 +66,17 @@ class BankTest(unittest.TestCase):
         self.assertEqual(OperationResult.Success, result)
         self.assertEqual(initialbalance - withdrawalamount, account.Balance)
 
-    def test_withdraw_overdraft_results_in_error(self):
+    @parameterized.expand([
+       (200,),
+       (400,),
+       (600,),
+    ])
+    def test_withdraw_overdraft_results_in_error(self, withdrawalamount):
         account = Account()
         bank = Bank()
         bank.deposit_to_account(account, 100)
 
-        result = bank.withdraw_from_account(account, 200)
+        result = bank.withdraw_from_account(account, withdrawalamount)
 
         self.assertEqual(OperationResult.InsufficientFunds, result)
         self.assertEqual(account.Balance, 100)
@@ -97,7 +102,7 @@ class BankTest(unittest.TestCase):
         self.assertNotEqual(None, transaction)
         self.assertEqual(withdrawal_amount, transaction.Amount)
         self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
-        
+
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
             if (condition(transaction)):
