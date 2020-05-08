@@ -20,3 +20,6 @@ class Bank():
             return withdrawal
 
         return account_to._deposit(amount, date)
+
+    def transfer_abroad(self, account, amount):
+        return account._transfer_abroad(amount, self.__datetimeprovider.now())

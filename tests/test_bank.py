@@ -136,6 +136,58 @@ class BankTest(unittest.TestCase):
         self.assertEqual(50, account_to.Balance)
         self.assertEqual(OperationResult.InsufficientFunds, result)
 
+    @parameterized.expand([
+       (100, 50),
+       (200, 100),
+       (300, 100),
+    ])
+    def test_transfer_abroad_removes_from_balance(self, initialbalance, withdrawalamount):
+        account = Account()
+        bank = Bank()
+        bank.deposit_to_account(account, initialbalance)
+
+        result = bank.transfer_abroad(account, withdrawalamount)
+
+        self.assertEqual(OperationResult.Success, result)
+        self.assertEqual(initialbalance - withdrawalamount, account.Balance)
+
+    @parameterized.expand([
+       (200,),
+       (400,),
+       (600,),
+    ])
+    def test__transfer_abroad_insufficient_sender_funds(self, withdrawalamount):
+        account = Account()
+        bank = Bank()
+        bank.deposit_to_account(account, 100)
+
+        result = bank.transfer_abroad(account, withdrawalamount)
+
+        self.assertEqual(OperationResult.InsufficientFunds, result)
+        self.assertEqual(account.Balance, 100)
+    
+    @parameterized.expand([
+       (100,),
+       (50,),
+       (30,),
+    ])
+    def test__transfer_abroad_creates_transaction(self, withdrawal_amount):
+        class DateTimeMock(datetime.datetime):
+            @classmethod
+            def now(cls):
+                return cls(2020, 1, 1, 15, 45, 0)        
+        datetimemock = DateTimeMock
+
+        account = Account()
+        bank = Bank(datetimemock)
+        bank.deposit_to_account(account, 100)
+
+        bank.transfer_abroad(account, withdrawal_amount)
+        transaction = self.__get_transaction(account, lambda t: t.Type == TransactionType.Debit)
+        self.assertNotEqual(None, transaction)
+        self.assertEqual(withdrawal_amount, transaction.Amount)
+        self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
+
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
             if (condition(transaction)):
