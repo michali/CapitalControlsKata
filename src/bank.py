@@ -1,4 +1,5 @@
 import datetime
+from .transaction import OperationResult
 
 class Bank():
 
@@ -10,4 +11,10 @@ class Bank():
 
     def withdraw_from_account(self, account, amount):
         return account._withdraw(amount, self.__datetimeprovider.now())
+
+    def transfer(self, account_from, account_to, amount):
+        date = self.__datetimeprovider.now()
+        account_from._withdraw(amount, date)
+        account_to._deposit(amount, date)
+        return OperationResult.Success
        

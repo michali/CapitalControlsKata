@@ -103,6 +103,20 @@ class BankTest(unittest.TestCase):
         self.assertEqual(withdrawal_amount, transaction.Amount)
         self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
 
+    def test_eletronic_transfer(self):
+        account_from = Account()
+        account_to = Account()
+        bank = Bank()
+
+        bank.deposit_to_account(account_from, 100)
+        bank.deposit_to_account(account_to, 50)
+
+        result = bank.transfer(account_from, account_to, 50)
+
+        self.assertEqual(50, account_from.Balance)
+        self.assertEqual(100, account_to.Balance)
+        self.assertEqual(OperationResult.Success, result)
+
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
             if (condition(transaction)):
