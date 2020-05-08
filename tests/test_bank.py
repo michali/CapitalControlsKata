@@ -117,6 +117,25 @@ class BankTest(unittest.TestCase):
         self.assertEqual(100, account_to.Balance)
         self.assertEqual(OperationResult.Success, result)
 
+    @parameterized.expand([
+       (101,),
+       (102,),
+       (104,),
+    ])
+    def test_eletronic_transfer_insufficient_sender_funds(self, transfer_amount):
+        account_from = Account()
+        account_to = Account()
+        bank = Bank()
+
+        bank.deposit_to_account(account_from, 100)
+        bank.deposit_to_account(account_to, 50)
+
+        result = bank.transfer(account_from, account_to, transfer_amount)
+
+        self.assertEqual(100, account_from.Balance)
+        self.assertEqual(50, account_to.Balance)
+        self.assertEqual(OperationResult.InsufficientFunds, result)
+
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
             if (condition(transaction)):

@@ -14,7 +14,9 @@ class Bank():
 
     def transfer(self, account_from, account_to, amount):
         date = self.__datetimeprovider.now()
-        account_from._withdraw(amount, date)
-        account_to._deposit(amount, date)
-        return OperationResult.Success
-       
+        withdrawal = account_from._withdraw(amount, date)
+
+        if (withdrawal == OperationResult.InsufficientFunds):
+            return withdrawal
+
+        return account_to._deposit(amount, date)
