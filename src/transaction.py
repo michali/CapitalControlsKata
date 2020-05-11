@@ -1,12 +1,9 @@
 from enum import Enum
+from .operationresult import *
 
 class TransactionType(Enum):
     Credit = 1
     Debit = 2
-    
-class OperationResult(Enum):
-    Success = 1
-    InsufficientFunds = 2
 
 class Transaction():
 
