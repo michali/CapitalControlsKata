@@ -52,9 +52,9 @@ class BankTest(unittest.TestCase):
         self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
 
     @parameterized.expand([
-       (100, 50),
-       (200, 100),
-       (300, 100),
+       (10, 5),
+       (20, 10),
+       (30, 10),
     ])
     def test_withdraw_removes_from_balance(self, initialbalance, withdrawalamount):
         account = Account()
@@ -67,23 +67,23 @@ class BankTest(unittest.TestCase):
         self.assertEqual(initialbalance - withdrawalamount, account.Balance)
 
     @parameterized.expand([
-       (200,),
-       (400,),
-       (600,),
+       (20,),
+       (40,),
+       (60,),
     ])
     def test_withdraw_overdraft_results_in_error(self, withdrawalamount):
         account = Account()
         bank = Bank()
-        bank.deposit_to_account(account, 100)
+        bank.deposit_to_account(account, 10)
 
         result = bank.withdraw_from_account(account, withdrawalamount)
 
         self.assertEqual(OperationResult.InsufficientFunds, result)
-        self.assertEqual(account.Balance, 100)
+        self.assertEqual(account.Balance, 10)
     
     @parameterized.expand([
-       (100,),
        (50,),
+       (40,),
        (30,),
     ])
     def test_withdraw_creates_transaction(self, withdrawal_amount):
@@ -134,59 +134,31 @@ class BankTest(unittest.TestCase):
 
         self.assertEqual(100, account_from.Balance)
         self.assertEqual(50, account_to.Balance)
-        self.assertEqual(OperationResult.InsufficientFunds, result)
+        self.assertEqual(OperationResult.InsufficientFunds, result)       
 
     @parameterized.expand([
-       (100, 50),
-       (200, 100),
-       (300, 100),
+       (61,),
+       (62,),
+       (70,),
     ])
-    def test_transfer_abroad_removes_from_balance(self, initialbalance, withdrawalamount):
-        account = Account()
-        bank = Bank()
-        bank.deposit_to_account(account, initialbalance)
-
-        result = bank.transfer_abroad(account, withdrawalamount)
-
-        self.assertEqual(OperationResult.Success, result)
-        self.assertEqual(initialbalance - withdrawalamount, account.Balance)
-
-    @parameterized.expand([
-       (200,),
-       (400,),
-       (600,),
-    ])
-    def test__transfer_abroad_insufficient_sender_funds(self, withdrawalamount):
+    def test_withdrawal_of_over_60_dollars_not_allowed(self, withdrawal_amount):
         account = Account()
         bank = Bank()
         bank.deposit_to_account(account, 100)
 
-        result = bank.transfer_abroad(account, withdrawalamount)
+        result = bank.withdraw_from_account(account, withdrawal_amount)
 
-        self.assertEqual(OperationResult.InsufficientFunds, result)
-        self.assertEqual(account.Balance, 100)
-    
-    @parameterized.expand([
-       (100,),
-       (50,),
-       (30,),
-    ])
-    def test__transfer_abroad_creates_transaction(self, withdrawal_amount):
-        class DateTimeMock(datetime.datetime):
-            @classmethod
-            def now(cls):
-                return cls(2020, 1, 1, 15, 45, 0)        
-        datetimemock = DateTimeMock
+        self.assertEqual(OperationResult.NotAllowed, result)
+        self.assertEqual(100, account.Balance)
 
+    def test_transfer_abroad_not_allowed(self):
         account = Account()
-        bank = Bank(datetimemock)
+        bank = Bank()
         bank.deposit_to_account(account, 100)
 
-        bank.transfer_abroad(account, withdrawal_amount)
-        transaction = self.__get_transaction(account, lambda t: t.Type == TransactionType.Debit)
-        self.assertNotEqual(None, transaction)
-        self.assertEqual(withdrawal_amount, transaction.Amount)
-        self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
+        result = bank.transfer_abroad(account, 10)
+
+        self.assertEqual(OperationResult.NotAllowed, result)
 
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:

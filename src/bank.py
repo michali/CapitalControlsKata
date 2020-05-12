@@ -10,6 +10,9 @@ class Bank():
         return account._deposit(amount, self.__datetimeprovider.now())
 
     def withdraw_from_account(self, account, amount):
+        if (amount > 60):
+            return OperationResult.NotAllowed
+
         return account._withdraw(amount, self.__datetimeprovider.now())
 
     def transfer(self, account_from, account_to, amount):
@@ -22,4 +25,4 @@ class Bank():
         return account_to._deposit(amount, date)
 
     def transfer_abroad(self, account, amount):
-        return account._transfer_abroad(amount, self.__datetimeprovider.now())
+        return OperationResult.NotAllowed
