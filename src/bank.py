@@ -1,7 +1,9 @@
 import datetime
-from .transaction import OperationResult
+from .transaction import OperationResult, TransactionType
 
 class Bank():
+
+    __max_daily_limit = 60
 
     def __init__(self, datetimeprovider = datetime.datetime):
         self.__datetimeprovider = datetimeprovider
@@ -10,11 +12,11 @@ class Bank():
         return account._deposit(amount, self.__datetimeprovider.now())
 
     def withdraw_from_account(self, account, amount):
-        if (amount > 60):
+        if (amount > Bank.__max_daily_limit):
             return OperationResult.NotAllowed
 
         for trn in account.Transactions:
-            if trn.Amount == 60:
+            if trn.Type == TransactionType.Debit and trn.Amount + amount > Bank.__max_daily_limit:
                 return OperationResult.NotAllowed
 
         return account._withdraw(amount, self.__datetimeprovider.now())
