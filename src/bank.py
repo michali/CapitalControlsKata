@@ -15,10 +15,15 @@ class Bank():
         if (amount > Bank.__max_daily_limit):
             return OperationResult.NotAllowed
 
-        for trn in account.Transactions:
-            if trn.Type == TransactionType.Debit and trn.Amount + amount > Bank.__max_daily_limit:
-                return OperationResult.NotAllowed
+        amount_already_drawn = 0
 
+        for trn in account.Transactions:
+            if trn.Type == TransactionType.Debit:
+                amount_already_drawn += trn.Amount
+
+        if amount_already_drawn + amount > Bank.__max_daily_limit:
+            return OperationResult.NotAllowed
+            
         return account._withdraw(amount, self.__datetimeprovider.now())
 
     def transfer(self, account_from, account_to, amount):
