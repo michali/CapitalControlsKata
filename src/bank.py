@@ -18,7 +18,7 @@ class Bank():
         amount_already_drawn = 0
 
         for trn in account.Transactions:
-            if trn.Type == TransactionType.Debit:
+            if trn.Type == TransactionType.Debit and trn.DateTime.date() == self.__datetimeprovider.now().date():
                 amount_already_drawn += trn.Amount
 
         if amount_already_drawn + amount > Bank.__max_daily_limit:
