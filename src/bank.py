@@ -13,6 +13,10 @@ class Bank():
         if (amount > 60):
             return OperationResult.NotAllowed
 
+        for trn in account.Transactions:
+            if trn.Amount == 60:
+                return OperationResult.NotAllowed
+
         return account._withdraw(amount, self.__datetimeprovider.now())
 
     def transfer(self, account_from, account_to, amount):

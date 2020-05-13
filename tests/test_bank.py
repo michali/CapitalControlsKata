@@ -32,13 +32,8 @@ class BankTest(unittest.TestCase):
        (300,),
     ])
     def test_deposit_to_account_creates_transaction(self, amount):
-        class DateTimeMock(datetime.datetime):
-            @classmethod
-            def now(cls):
-                return cls(2020, 1, 1, 15, 45, 0)
-
-        datetimemock = DateTimeMock
-
+        datetimemock = Mock()
+        datetimemock.now.return_value = datetime.datetime(2020, 1, 1, 15, 45, 0)
         account = Account()
         bank = Bank(datetimemock)
                 
@@ -87,11 +82,8 @@ class BankTest(unittest.TestCase):
        (30,),
     ])
     def test_withdraw_creates_transaction(self, withdrawal_amount):
-        class DateTimeMock(datetime.datetime):
-            @classmethod
-            def now(cls):
-                return cls(2020, 1, 1, 15, 45, 0)        
-        datetimemock = DateTimeMock
+        datetimemock = Mock()
+        datetimemock.now.return_value = datetime.datetime(2020, 1, 1, 15, 45, 0)
 
         account = Account()
         bank = Bank(datetimemock)
@@ -150,6 +142,33 @@ class BankTest(unittest.TestCase):
 
         self.assertEqual(OperationResult.NotAllowed, result)
         self.assertEqual(100, account.Balance)
+
+    def test_withdrawal_over_daily_amount_in_multiple_transactions_not_allowed(self):
+        account = Account()
+        bank = Bank()
+        bank.deposit_to_account(account, 100)
+
+        bank.withdraw_from_account(account, 60)
+        result = bank.withdraw_from_account(account, 1)
+
+        self.assertEqual(OperationResult.NotAllowed, result)
+        self.assertEqual(40, account.Balance)
+
+    def test_withdrawal_over_daily_amount_in_multiple_transactions_across_two_days_is_allowed(self):
+        datetimemock = Mock()
+        datetimemock.now.return_value = datetime.datetime(2020, 1, 1, 15, 45, 0)
+
+        account = Account()
+        bank = Bank(datetimemock)
+
+        bank.deposit_to_account(account, 100)
+
+        bank.withdraw_from_account(account, 60)
+
+        result = bank.withdraw_from_account(account, 1)
+
+        self.assertEqual(OperationResult.NotAllowed, result)
+        self.assertEqual(40, account.Balance)
 
     def test_transfer_abroad_not_allowed(self):
         account = Account()
