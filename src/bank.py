@@ -12,9 +12,6 @@ class Bank():
         return account._deposit(amount, self.__datetimeprovider.now())
 
     def withdraw_from_account(self, account, amount):
-        if (amount > Bank.__max_daily_limit):
-            return OperationResult.NotAllowed
-
         amount_already_drawn = 0
 
         for trn in account.Transactions:
