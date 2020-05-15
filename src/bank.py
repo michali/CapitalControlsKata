@@ -16,10 +16,7 @@ class Bank():
 
         if amount_already_drawn + amount > Bank.__max_daily_limit:
             diff = amount_already_drawn + amount - Bank.__max_daily_limit
-            money_drawn_previous_day = 0
-            for trn in account.Transactions:
-                if trn.Type == TransactionType.Debit and trn.DateTime.date() == self.__datetimeprovider.now().date() - timedelta(days = 1):
-                    money_drawn_previous_day += trn.Amount
+            money_drawn_previous_day = account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=1))
 
             if money_drawn_previous_day + diff > Bank.__max_daily_limit:
                 return OperationResult.NotAllowed            
