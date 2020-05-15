@@ -4,7 +4,7 @@ from src.transaction import *
 from unittest.mock import Mock
 from parameterized import parameterized, parameterized_class
 import unittest
-import datetime;
+import datetime
 
 class BankTest(unittest.TestCase):
     def test_deposit_to_account_updates_balance(self):
