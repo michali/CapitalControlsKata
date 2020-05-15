@@ -133,7 +133,7 @@ class BankTest(unittest.TestCase):
        (62,),
        (70,),
     ])
-    def test_withdrawal_of_over_60_dollars_not_allowed(self, withdrawal_amount):
+    def test_withdrawal_of_over_daily_limit_not_allowed(self, withdrawal_amount):
         account = Account()
         bank = Bank()
         bank.deposit_to_account(account, 100)
