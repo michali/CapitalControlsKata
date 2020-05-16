@@ -34,3 +34,14 @@ class Bank():
 
     def transfer_abroad(self, account, amount):
         return OperationResult.NotAllowed
+
+    def __can_withdraw(self, account, amount):
+        amount_already_drawn = account._get_withdrawn_amount_on_date(self.__datetimeprovider.now())
+
+        if amount_already_drawn + amount > Bank.__max_daily_limit:
+            diff = amount_already_drawn + amount - Bank.__max_daily_limit
+            money_drawn_previous_day = account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=1))
+
+            return money_drawn_previous_day + diff <= Bank.__max_daily_limit
+        
+        return True
