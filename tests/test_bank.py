@@ -145,10 +145,11 @@ class BankTest(unittest.TestCase):
         self.assertEqual(30, account.Balance)
 
     @parameterized.expand([
-       (11, 60, 16, 250, OperationResult.Success), #first day: Monday, second day:Saturday
-       (12, 60, 17, 360, OperationResult.Success), #first day: Tuesday, second day:Sunday
-       (14, 60, 17, 361, OperationResult.NotAllowed), #first day: Thursday, second day:Sunday
-       (11, 60, 12, 61, OperationResult.NotAllowed), #first day: Monday, second day:Tuesday
+       (11, 60, 16, 250, OperationResult.Success), #first day: Monday, second day: Saturday
+       (12, 60, 17, 360, OperationResult.Success), #first day: Tuesday, second day: Sunday
+       (14, 60, 17, 361, OperationResult.NotAllowed), #first day: Thursday, second day: Sunday
+       (11, 60, 12, 61, OperationResult.NotAllowed), #first day: Monday, second day: Tuesday
+       (16, 60, 20, 181, OperationResult.NotAllowed), #first day: Saturday, second day: Wednesday next week
     ])
     def test_withdrawal_if_less_than_the_limit_was_drawn_throughout_the_week_allow_withdrawal_up_to_today(self, day_of_month_first_trn, first_withdrawal_amount, day_of_month_second_trn, second_withdrawal_amount, operation_result):
         account = Account()
@@ -164,7 +165,7 @@ class BankTest(unittest.TestCase):
 
         self.assertEqual(operation_result, result)
 
-    #try across weeks
+    # try across weeks
     # if taking more than $60 on a monday, prohibited
     # if taking more than $120 on a tuesday, prohibited
     # if taking more than $180 on a wednesday, prohibited
