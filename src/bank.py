@@ -35,7 +35,11 @@ class Bank():
         if amount_already_drawn + amount > Bank.__max_daily_limit:
             diff = amount_already_drawn + amount - Bank.__max_daily_limit
             money_drawn_previous_day = account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=1))
- 
-            return money_drawn_previous_day + diff <= Bank.__max_daily_limit
+            money_drawn_previous_day += account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=2))
+            money_drawn_previous_day += account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=3))
+            money_drawn_previous_day += account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=4))
+            money_drawn_previous_day += account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=5))
+
+            return money_drawn_previous_day + diff <= Bank.__max_daily_limit * 5
         
         return True

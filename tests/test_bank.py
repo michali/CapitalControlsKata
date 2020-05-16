@@ -126,56 +126,8 @@ class BankTest(unittest.TestCase):
 
         self.assertEqual(100, account_from.Balance)
         self.assertEqual(50, account_to.Balance)
-        self.assertEqual(OperationResult.InsufficientFunds, result)       
-
-    @parameterized.expand([
-       (121,),
-       (160,),
-       (200,),
-    ])
-    def test_withdrawal_of_over_daily_limit_not_allowed(self, withdrawal_amount):
-        account = Account()
-        bank = Bank()
-        bank.deposit_to_account(account, 500)
-
-        result = bank.withdraw_from_account(account, withdrawal_amount)
-
-        self.assertEqual(OperationResult.NotAllowed, result)
-        self.assertEqual(500, account.Balance)
+        self.assertEqual(OperationResult.InsufficientFunds, result)    
     
-    @parameterized.expand([
-       (60,61),
-       (40,81)
-    ])
-    def test_withdrawal_over_daily_limit_in_multiple_transactions_not_allowed_two_transactions(self, firstwithdrawalamount, secondwithdrawalamount):
-        account = Account()
-        bank = Bank()
-        bank.deposit_to_account(account, 500)
-        
-        bank.withdraw_from_account(account, firstwithdrawalamount)
-        result = bank.withdraw_from_account(account, secondwithdrawalamount)
-
-        self.assertEqual(OperationResult.NotAllowed, result)
-        self.assertEqual(500 - firstwithdrawalamount, account.Balance)
-
-    def test_withdrawal_over_daily_limit_in_multiple_transactions_not_allowed_three_transactions(self):
-        datetimemock = Mock()
-        datetimemock.now.return_value = datetime.datetime(2020, 1, 1, 15, 45, 0)
-
-        account = Account()
-        bank = Bank(datetimemock)
-        bank.deposit_to_account(account, 200)
-        
-        bank.withdraw_from_account(account, 20)
-
-        datetimemock.now.return_value = datetime.datetime(2020, 1, 1, 16, 45, 0)
-        bank.withdraw_from_account(account, 20)
-
-        result = bank.withdraw_from_account(account, 100)
-
-        self.assertEqual(OperationResult.NotAllowed, result)
-        self.assertEqual(160, account.Balance)   
-
     def test_withdrawal_over_daily_amount_in_multiple_transactions_across_two_days_is_allowed(self):
         datetimemock = Mock()
         datetimemock.now.return_value = datetime.datetime(2020, 1, 1, 15, 45, 0)
@@ -203,6 +155,36 @@ class BankTest(unittest.TestCase):
 
         self.assertEqual(OperationResult.Success, result)
         self.assertEqual(80, account.Balance)
+
+    def test_withdrawal_if_less_than_the_limit_was_drawn_throughout_the_week_allow_withdrawal_up_to_today(self):
+        account = Account()
+        datetimemock = Mock()
+        bank = Bank(datetimemock)
+        bank.deposit_to_account(account, 2000)
+
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 11, 12, 0, 0)   # Monday   
+        bank.withdraw_from_account(account, 60)
+
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 16, 12, 0, 0)   # Saturday   
+        result = bank.withdraw_from_account(account, 250)
+
+        self.assertEqual(OperationResult.Success, result)
+        self.assertEqual(1690, account.Balance)
+
+    def test_withdrawal_if_less_than_the_limit_was_drawn_throughout_the_week_allow_withdrawal_up_to_today(self):
+        account = Account()
+        datetimemock = Mock()
+        bank = Bank(datetimemock)
+        bank.deposit_to_account(account, 2000)
+
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 11, 12, 0, 0)   # Monday   
+        bank.withdraw_from_account(account, 60)
+
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 16, 12, 0, 0)   # Saturday   
+        result = bank.withdraw_from_account(account, 250)
+
+        self.assertEqual(OperationResult.Success, result)
+        self.assertEqual(1690, account.Balance)
 
     def test_transfer_abroad_not_allowed(self):
         account = Account()
