@@ -166,14 +166,22 @@ class BankTest(unittest.TestCase):
 
         self.assertEqual(second_trn_operation_result, result)
 
-    def test_transfer_abroad_not_allowed(self):
+    @parameterized.expand([
+       (489, OperationResult.Success),
+       (499, OperationResult.Success),
+       (500, OperationResult.Success),
+       (500.50, OperationResult.NotAllowed),
+       (501, OperationResult.NotAllowed),
+       (502, OperationResult.NotAllowed)
+    ])
+    def test_transfer_abroad_up_to_weekly_limit(self, amount, operation_result):
         account = Account()
         bank = Bank()
-        bank.deposit_to_account(account, 100)
+        bank.deposit_to_account(account, 1000)
 
-        result = bank.transfer_abroad(account, 10)
+        result = bank.transfer_abroad(account, amount)
 
-        self.assertEqual(OperationResult.NotAllowed, result)
+        self.assertEqual(operation_result, result)
 
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:

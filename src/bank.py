@@ -4,6 +4,7 @@ from .transaction import OperationResult, TransactionType
 class Bank():
 
     __max_daily_limit = 60
+    __max_weekly_bank_transfer_abroad_limit = 500
 
     def __init__(self, datetimeprovider = datetime):
         self.__datetimeprovider = datetimeprovider
@@ -27,6 +28,9 @@ class Bank():
         return account_to._deposit(amount, date)
 
     def transfer_abroad(self, account, amount):
+        if amount <= Bank.__max_weekly_bank_transfer_abroad_limit:
+            return account._transfer_abroad(amount, self.__datetimeprovider.now())
+
         return OperationResult.NotAllowed
 
     def __can_withdraw(self, account, amount): 
