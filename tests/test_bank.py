@@ -144,18 +144,6 @@ class BankTest(unittest.TestCase):
         self.assertEqual(OperationResult.Success, result)
         self.assertEqual(30, account.Balance)
 
-    def test_withdrawal_if_monday_missed_withdraw_twice_as_much_on_tuesday(self):        
-        account = Account()
-        datetimemock = Mock()
-        bank = Bank(datetimemock)
-        bank.deposit_to_account(account, 200)
-
-        datetimemock.now.return_value = datetime.datetime(2020, 5, 12, 15, 45, 0)
-        result = bank.withdraw_from_account(account, 120)
-
-        self.assertEqual(OperationResult.Success, result)
-        self.assertEqual(80, account.Balance)
-
     @parameterized.expand([
        (11, 60, 16, 250, OperationResult.Success), #first day: Monday, second day:Saturday
        (12, 60, 17, 360, OperationResult.Success), #first day: Tuesday, second day:Sunday
