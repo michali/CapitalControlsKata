@@ -11,15 +11,9 @@ class Bank():
     def deposit_to_account(self, account, amount):
         return account._deposit(amount, self.__datetimeprovider.now())
 
-    def withdraw_from_account(self, account, amount):           
-        amount_already_drawn = account._get_withdrawn_amount_on_date(self.__datetimeprovider.now())
-
-        if amount_already_drawn + amount > Bank.__max_daily_limit:
-            diff = amount_already_drawn + amount - Bank.__max_daily_limit
-            money_drawn_previous_day = account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=1))
-
-            if money_drawn_previous_day + diff > Bank.__max_daily_limit:
-                return OperationResult.NotAllowed            
+    def withdraw_from_account(self, account, amount):       
+        if not self.__can_withdraw(account, amount):  
+            return OperationResult.NotAllowed            
             
         return account._withdraw(amount, self.__datetimeprovider.now())
     
@@ -41,7 +35,7 @@ class Bank():
         if amount_already_drawn + amount > Bank.__max_daily_limit:
             diff = amount_already_drawn + amount - Bank.__max_daily_limit
             money_drawn_previous_day = account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=1))
-
+ 
             return money_drawn_previous_day + diff <= Bank.__max_daily_limit
         
         return True
