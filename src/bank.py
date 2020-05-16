@@ -30,16 +30,16 @@ class Bank():
         return OperationResult.NotAllowed
 
     def __can_withdraw(self, account, amount):
-        amount_already_drawn = account._get_withdrawn_amount_on_date(self.__datetimeprovider.now())
+        now = self.__datetimeprovider.now()
+        amount_already_drawn = account._get_withdrawn_amount_on_date(now)
 
-        if amount_already_drawn + amount > Bank.__max_daily_limit:
-            diff = amount_already_drawn + amount - Bank.__max_daily_limit
-            money_drawn_previous_day = account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=1))
-            money_drawn_previous_day += account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=2))
-            money_drawn_previous_day += account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=3))
-            money_drawn_previous_day += account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=4))
-            money_drawn_previous_day += account._get_withdrawn_amount_on_date(self.__datetimeprovider.now() - timedelta(days=5))
-
-            return money_drawn_previous_day + diff <= Bank.__max_daily_limit * 5
+        if amount_already_drawn + amount > Bank.__max_daily_limit: 
+            day_of_week_index = now.weekday()
+            money_withdrawn_this_week = 0
+            if (day_of_week_index > 0):
+                for i in range(1, day_of_week_index + 1):
+                    money_withdrawn_this_week += account._get_withdrawn_amount_on_date(now - timedelta(days = i))
+          
+            return money_withdrawn_this_week + amount <= Bank.__max_daily_limit * (day_of_week_index + 1)
         
         return True

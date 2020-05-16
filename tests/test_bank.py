@@ -156,35 +156,30 @@ class BankTest(unittest.TestCase):
         self.assertEqual(OperationResult.Success, result)
         self.assertEqual(80, account.Balance)
 
-    def test_withdrawal_if_less_than_the_limit_was_drawn_throughout_the_week_allow_withdrawal_up_to_today(self):
+    @parameterized.expand([
+       (11, 60, 16, 250, OperationResult.Success), #first day: Monday, second day:Saturday
+       (12, 60, 17, 360, OperationResult.Success), #first day: Tuesday, second day:Sunday
+       (14, 60, 17, 361, OperationResult.NotAllowed), #first day: Thursday, second day:Sunday
+       (11, 60, 12, 61, OperationResult.NotAllowed), #first day: Monday, second day:Tuesday
+    ])
+    def test_withdrawal_if_less_than_the_limit_was_drawn_throughout_the_week_allow_withdrawal_up_to_today(self, day_of_month_first_trn, first_withdrawal_amount, day_of_month_second_trn, second_withdrawal_amount, operation_result):
         account = Account()
         datetimemock = Mock()
         bank = Bank(datetimemock)
         bank.deposit_to_account(account, 2000)
 
-        datetimemock.now.return_value = datetime.datetime(2020, 5, 11, 12, 0, 0)   # Monday   
-        bank.withdraw_from_account(account, 60)
+        datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_first_trn, 12, 0, 0)  
+        bank.withdraw_from_account(account, first_withdrawal_amount)
 
-        datetimemock.now.return_value = datetime.datetime(2020, 5, 16, 12, 0, 0)   # Saturday   
-        result = bank.withdraw_from_account(account, 250)
+        datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_second_trn, 12, 0, 0) 
+        result = bank.withdraw_from_account(account, second_withdrawal_amount)
 
-        self.assertEqual(OperationResult.Success, result)
-        self.assertEqual(1690, account.Balance)
+        self.assertEqual(operation_result, result)
 
-    def test_withdrawal_if_less_than_the_limit_was_drawn_throughout_the_week_allow_withdrawal_up_to_today(self):
-        account = Account()
-        datetimemock = Mock()
-        bank = Bank(datetimemock)
-        bank.deposit_to_account(account, 2000)
-
-        datetimemock.now.return_value = datetime.datetime(2020, 5, 11, 12, 0, 0)   # Monday   
-        bank.withdraw_from_account(account, 60)
-
-        datetimemock.now.return_value = datetime.datetime(2020, 5, 16, 12, 0, 0)   # Saturday   
-        result = bank.withdraw_from_account(account, 250)
-
-        self.assertEqual(OperationResult.Success, result)
-        self.assertEqual(1690, account.Balance)
+    #try across weeks
+    # if taking more than $60 on a monday, prohibited
+    # if taking more than $120 on a tuesday, prohibited
+    # if taking more than $180 on a wednesday, prohibited
 
     def test_transfer_abroad_not_allowed(self):
         account = Account()
