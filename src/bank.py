@@ -29,13 +29,9 @@ class Bank():
     def transfer_abroad(self, account, amount):
         return OperationResult.NotAllowed
 
-    def __can_withdraw(self, account, amount):
+    def __can_withdraw(self, account, amount): 
         now = self.__datetimeprovider.now()
-        
-        day_of_week_index = now.weekday()
-        money_withdrawn_this_week = 0
-        if (day_of_week_index > 0):
-            for i in range(0, day_of_week_index + 1):
-                money_withdrawn_this_week += account._get_withdrawn_amount_on_date(now - timedelta(days = i))
+        day_of_week_index = now.weekday()     
+        money_withdrawn_this_week = account._get_withdrawn_amount_this_week_so_far_for_date(now)
         
         return money_withdrawn_this_week + amount <= Bank.__max_daily_limit * (day_of_week_index + 1)        

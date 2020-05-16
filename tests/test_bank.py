@@ -150,8 +150,9 @@ class BankTest(unittest.TestCase):
        (14, 60, 17, 361, OperationResult.NotAllowed), #first day: Thursday, second day: Sunday
        (11, 60, 12, 61, OperationResult.NotAllowed), #first day: Monday, second day: Tuesday
        (16, 60, 20, 181, OperationResult.NotAllowed), #first day: Saturday, second day: Wednesday next week
+       (11, 60, 12, 61, OperationResult.NotAllowed), #first day: Monday, second day: Saturday
     ])
-    def test_withdrawal_if_less_than_the_limit_was_drawn_throughout_the_week_allow_withdrawal_up_to_today(self, day_of_month_first_trn, first_withdrawal_amount, day_of_month_second_trn, second_withdrawal_amount, operation_result):
+    def test_withdrawal_if_less_than_the_limit_was_drawn_throughout_the_week_allow_withdrawal_up_to_today(self, day_of_month_first_trn, first_withdrawal_amount, day_of_month_second_trn, second_withdrawal_amount, second_trn_operation_result):
         account = Account()
         datetimemock = Mock()
         bank = Bank(datetimemock)
@@ -163,12 +164,7 @@ class BankTest(unittest.TestCase):
         datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_second_trn, 12, 0, 0) 
         result = bank.withdraw_from_account(account, second_withdrawal_amount)
 
-        self.assertEqual(operation_result, result)
-
-    # try across weeks
-    # if taking more than $60 on a monday, prohibited
-    # if taking more than $120 on a tuesday, prohibited
-    # if taking more than $180 on a wednesday, prohibited
+        self.assertEqual(second_trn_operation_result, result)
 
     def test_transfer_abroad_not_allowed(self):
         account = Account()
