@@ -5,6 +5,7 @@ class Bank():
 
     __max_daily_limit = 60
     __max_weekly_bank_transfer_abroad_limit = 500
+    __start_date_for_fresh_transactions = datetime(2020, 5, 18, 12, 0, 0)
 
     def __init__(self, datetimeprovider = datetime):
         self.__datetimeprovider = datetimeprovider
@@ -20,7 +21,7 @@ class Bank():
         return account._withdraw(amount, self.__datetimeprovider.now())
 
     def __is_fresh_deposit(self, account, amount):
-        total_deposits_after_cutoff_date = account._get_total_amount_for_credits(datetime(2020, 5, 18, 12, 0, 0))
+        total_deposits_after_cutoff_date = account._get_total_amount_for_credits(Bank.__start_date_for_fresh_transactions)
         return amount == total_deposits_after_cutoff_date
     
     def transfer(self, account_from, account_to, amount):
