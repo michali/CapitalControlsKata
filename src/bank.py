@@ -20,12 +20,7 @@ class Bank():
         return account._withdraw(amount, self.__datetimeprovider.now())
 
     def __is_fresh_deposit(self, account, amount):
-        # get all deposits after cut-off date
-        total_deposits_after_cutoff_date = 0
-        for trn in account.Transactions:
-            if trn.Type == TransactionType.Credit and trn.DateTime == datetime(2020, 5, 18, 12, 0, 0):
-                total_deposits_after_cutoff_date += trn.Amount        
-
+        total_deposits_after_cutoff_date = account._get_total_amount_for_credits(datetime(2020, 5, 18, 12, 0, 0))
         return amount == total_deposits_after_cutoff_date
     
     def transfer(self, account_from, account_to, amount):
