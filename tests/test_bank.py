@@ -185,22 +185,23 @@ class BankTest(unittest.TestCase):
         self.assertEqual(operation_result, result)
 
     @parameterized.expand([
-       (250, 250, OperationResult.Success), 
-       (100, 100, OperationResult.Success), 
-       (250, 251, OperationResult.NotAllowed),
-       (499, 2, OperationResult.NotAllowed)
+       (11, 250, 16, 250, OperationResult.Success), # same week
+       (12, 400, 17, 99, OperationResult.Success), # same week
+       (14, 100, 17, 401, OperationResult.NotAllowed), # same week
+       (16, 400, 20, 500, OperationResult.Success), # second transaction occurs next week
     ])
-    def test_transfer_abroad_up_to_weekly_limit_two_transactions(self, first_withdrawal_amount, second_withdrawal_amount, second_trn_operation_result):
-        datetimemock = Mock()
-        datetimemock.now.return_value = datetime.datetime(2020, 5, 11, 12, 0, 0)
-        account = Account()
+    def test_transfer_abroad_up_to_weekly_limit_two_transactions(self, day_of_month_first_trn, first_withdrawal_amount, day_of_month_second_trn, second_withdrawal_amount, second_trn_operation_result):
+        datetimemock = Mock()        
+        account = Account()        
         bank = Bank(datetimemock)
         bank.deposit_to_account(account, 2000)     
 
+        datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_first_trn, 12, 0, 0)  
         bank.transfer_abroad(account, first_withdrawal_amount)
 
         datetimemock.now.return_value = datetime.datetime(2020, 5, 15, 12, 0, 0)
 
+        datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_second_trn, 12, 0, 0) 
         result = bank.transfer_abroad(account, second_withdrawal_amount)
 
         self.assertEqual(second_trn_operation_result, result)
