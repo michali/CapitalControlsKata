@@ -215,9 +215,19 @@ class BankTest(unittest.TestCase):
 
         self.assertEqual(OperationResult.Success, result_withdraw)        
         self.assertEqual(OperationResult.Success, result_transfer_abroad)
-    
+
+    def test_transfer_abroad_to_limit_and_withdraw_to_limit_and_in_same_week(self):
+        account = Account() 
+        bank = Bank()
+        bank.deposit_to_account(account, 2000)    
+        result_transfer_abroad = bank.transfer_abroad(account, 500) 
+        result_withdraw = bank.withdraw_from_account(account, 420)
+
+        self.assertEqual(OperationResult.Success, result_transfer_abroad)
+        self.assertEqual(OperationResult.Success, result_withdraw)        
+        
     # test_withdraw_to_limit_and_tranfer_abroad_to_limit_in_same_week different days
-    # def test_tranfer_abroad_to_limit_and_withdraw_to_limit_and_in_same_week(self):
+    
 
     # transfer abroad 500, disallow 400 in cash withdrawals
     # withdraw 420, disallow 500 in transfers abroad

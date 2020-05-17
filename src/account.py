@@ -56,7 +56,9 @@ class Account():
     def __get_withdrawn_amount_on_date(self, date):     
         amount = 0   
         for trn in self.Transactions:
-            if trn.Type == TransactionType.Debit and trn.DateTime.date() == date.date():
+            if trn.Type == TransactionType.Debit \
+                and trn.DebitType == DebitType.CashWithdrawal \
+                and trn.DateTime.date() == date.date():
                 amount += trn.Amount
         
         return amount
