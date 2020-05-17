@@ -224,13 +224,7 @@ class BankTest(unittest.TestCase):
         result_withdraw = bank.withdraw_from_account(account, 420)
 
         self.assertEqual(OperationResult.Success, result_transfer_abroad)
-        self.assertEqual(OperationResult.Success, result_withdraw)        
-        
-    # test_withdraw_to_limit_and_tranfer_abroad_to_limit_in_same_week different days
-    
-
-    # transfer abroad 500, disallow 400 in cash withdrawals
-    # withdraw 420, disallow 500 in transfers abroad
+        self.assertEqual(OperationResult.Success, result_withdraw)           
 
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
