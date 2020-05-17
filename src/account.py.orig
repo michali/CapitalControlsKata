@@ -42,7 +42,8 @@ class Account():
             return OperationResult.InsufficientFunds
 
         self.__balance -= amount
-        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime, DebitType.ElectronicTransferAbroad))
+<<<<<<< HEAD
+        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime))
         return OperationResult.Success
         
     def _get_withdrawn_amount_this_week_so_far_for_date(self, date):
@@ -61,3 +62,7 @@ class Account():
                 amount += trn.Amount
         
         return amount
+=======
+        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime, DebitType.ElectronicTransferAbroad))
+        return OperationResult.Success
+>>>>>>> restrictions1

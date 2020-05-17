@@ -19,7 +19,7 @@ class Bank():
     
     def transfer(self, account_from, account_to, amount):
         date = self.__datetimeprovider.now()
-        withdrawal = account_from._withdraw(amount, date)
+        withdrawal = account_from._transfer_domestic(amount, date)
 
         if (withdrawal == OperationResult.InsufficientFunds):
             return withdrawal
