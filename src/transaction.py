@@ -6,7 +6,8 @@ class TransactionType(Enum):
     Debit = 2
 
 class DebitType(Enum):
-    CashWithdrawal = 1
+    CashWithdrawal = 1,
+    DomesticElectronicTransfer = 2
 
 class Transaction():
 

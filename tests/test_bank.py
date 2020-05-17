@@ -137,6 +137,29 @@ class BankTest(unittest.TestCase):
         self.assertEqual(50, account_to.Balance)
         self.assertEqual(OperationResult.InsufficientFunds, result)
 
+    def test_eletronic_transfer_domestic_creates_transactions(self):
+        account_from = Account()
+        account_to = Account()
+
+        class DateTimeMock(datetime.datetime):
+            @classmethod
+            def now(cls):
+                return cls(2020, 1, 1, 15, 45, 0)   
+
+        datetimemock = DateTimeMock
+        bank = Bank(datetimemock)
+
+        bank.deposit_to_account(account_from, 100)
+        bank.deposit_to_account(account_to, 50)
+
+        bank.transfer(account_from, account_to, 50)
+
+        transaction = self.__get_transaction(account_from, lambda t: t.Type == TransactionType.Debit)
+        self.assertNotEqual(None, transaction)
+        self.assertEqual(50, transaction.Amount)
+        self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
+        self.assertEqual(DebitType.DomesticElectronicTransfer, transaction.DebitType)
+
     @parameterized.expand([
        (100, 50),
        (200, 100),

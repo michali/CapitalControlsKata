@@ -28,6 +28,15 @@ class Account():
         self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime, DebitType.CashWithdrawal))
         return OperationResult.Success
 
+    def _transfer_domestic(self, amount, datetime):
+        if (self.__balance < amount):
+            return OperationResult.InsufficientFunds
+
+        self.__balance -= amount
+        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime, DebitType.DomesticElectronicTransfer))
+        return OperationResult.Success
+
+
     def _transfer_abroad(self, amount, datetime):
         if (self.__balance < amount):
             return OperationResult.InsufficientFunds
