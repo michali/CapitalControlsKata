@@ -94,6 +94,7 @@ class BankTest(unittest.TestCase):
         self.assertNotEqual(None, transaction)
         self.assertEqual(withdrawal_amount, transaction.Amount)
         self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
+        self.assertEqual(DebitType.CashWithdrawal, transaction.DebitType)
 
     def test_eletronic_transfer(self):
         account_from = Account()

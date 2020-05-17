@@ -5,12 +5,18 @@ class TransactionType(Enum):
     Credit = 1
     Debit = 2
 
+class DebitType(Enum):
+    CashWithdrawal = 1,
+    ElectronicTransferDomestic = 2,
+    ElectronicTransferAbroad = 3
+
 class Transaction():
 
-    def __init__(self, type, amount, datetime):
+    def __init__(self, type, amount, datetime, debitType = None):
         self.__type = type
         self.__amount = amount
         self.__dateTime = datetime
+        self.__debitType = debitType
 
     @property
     def Type(self):
@@ -23,6 +29,10 @@ class Transaction():
     @property
     def DateTime(self):
         return self.__dateTime
+
+    @property
+    def DebitType(self):
+        return self.__debitType
 
     
         
