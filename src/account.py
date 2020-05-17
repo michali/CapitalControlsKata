@@ -21,27 +21,20 @@ class Account():
         return OperationResult.Success
 
     def _withdraw(self, amount, datetime):
-        if (self.__balance < amount):
-            return OperationResult.InsufficientFunds
-
-        self.__balance -= amount
-        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime, DebitType.CashWithdrawal))
-        return OperationResult.Success
+        return self.__debit(amount, datetime, DebitType.CashWithdrawal)
 
     def _transfer_domestic(self, amount, datetime):
-        if (self.__balance < amount):
-            return OperationResult.InsufficientFunds
-
-        self.__balance -= amount
-        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime, DebitType.ElectronicTransferDomestic))
-        return OperationResult.Success
-
+        return self.__debit(amount, datetime, DebitType.ElectronicTransferDomestic)
+   
     def _transfer_abroad(self, amount, datetime):
+        return self.__debit(amount, datetime, DebitType.ElectronicTransferAbroad)
+
+    def __debit(self, amount, datetime, debit_type):
         if (self.__balance < amount):
             return OperationResult.InsufficientFunds
 
         self.__balance -= amount
-        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime, DebitType.ElectronicTransferAbroad))
+        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime, debit_type))
         return OperationResult.Success
         
     def _get_withdrawn_amount_this_week_so_far_for_date(self, date):
