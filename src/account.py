@@ -46,7 +46,7 @@ class Account():
     def _get_debited_amount_this_week_so_far_for_date(self, date, debit_type):
         day_of_week_index = date.weekday()
         money_withdrawn = 0
-        if (day_of_week_index > 0):
+        if day_of_week_index > 0:
             for i in range(0, day_of_week_index + 1):
                 money_withdrawn += self.__get_debited_amount_on_date(date - timedelta(days = i), debit_type)
 

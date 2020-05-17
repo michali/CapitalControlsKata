@@ -207,9 +207,12 @@ class BankTest(unittest.TestCase):
         self.assertEqual(second_trn_operation_result, result)
 
     def test_withdraw_to_limit_and_transfer_abroad_to_limit_in_same_week(self):
-        account = Account() 
-        bank = Bank()
-        bank.deposit_to_account(account, 2000)     
+        datetimemock = Mock()        
+        account = Account()        
+        bank = Bank(datetimemock)       
+        bank.deposit_to_account(account, 2000)  
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # End of week, can withdraw to maximum withdrawal limit
+   
         result_withdraw = bank.withdraw_from_account(account, 420)
         result_transfer_abroad = bank.transfer_abroad(account, 500)
 
@@ -217,27 +220,17 @@ class BankTest(unittest.TestCase):
         self.assertEqual(OperationResult.Success, result_transfer_abroad)
 
     def test_transfer_abroad_to_limit_and_withdraw_to_limit_and_in_same_week(self):
-        account = Account() 
-        bank = Bank()
-        bank.deposit_to_account(account, 2000)    
+        datetimemock = Mock()        
+        account = Account()        
+        bank = Bank(datetimemock)        
+        bank.deposit_to_account(account, 2000)   
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # End of week, can withdraw to maximum withdrawal limit
+         
         result_transfer_abroad = bank.transfer_abroad(account, 500) 
         result_withdraw = bank.withdraw_from_account(account, 420)
 
         self.assertEqual(OperationResult.Success, result_transfer_abroad)
-        self.assertEqual(OperationResult.Success, result_withdraw)
-
-    def test_new_deposits_are_exempt_from_withdrawal_restrictions(self):
-        datetimemock = Mock()        
-        account = Account() 
-        bank = Bank(datetimemock)      
-        datetimemock.now.return_value = datetime.datetime(2020, 5, 18, 12, 0, 0) ## Monday
-        bank.deposit_to_account(account, 200)
-        result_withdraw = bank.withdraw_from_account(account, 200)
-
-        self.assertEqual(OperationResult.Success, result_withdraw)
-        self.assertEqual(0, account.Balance)
-
-    # def test_new_deposits intertwine with withdrawals
+        self.assertEqual(OperationResult.Success, result_withdraw)           
 
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
