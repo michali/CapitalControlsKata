@@ -42,6 +42,7 @@ class Bank():
 
     def __can_transfer_abroad(self, account, amount): 
         now = self.__datetimeprovider.now() 
-        money_withdrawn_this_week = account._get_withdrawn_amount_this_week_so_far_for_date(now)
         
-        return money_withdrawn_this_week + amount <= Bank.__max_weekly_bank_transfer_abroad_limit     
+        money_transfered_abroad_this_week = account._get_amount_transfered_abroad_this_week_so_far_for_date(now)
+
+        return money_transfered_abroad_this_week + amount <= Bank.__max_weekly_bank_transfer_abroad_limit           

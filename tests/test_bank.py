@@ -175,7 +175,7 @@ class BankTest(unittest.TestCase):
        (501, OperationResult.NotAllowed),
        (502, OperationResult.NotAllowed)
     ])
-    def test_transfer_abroad_up_to_weekly_limit_500(self, amount, operation_result):
+    def test_transfer_abroad_up_to_weekly_limit(self, amount, operation_result):
         account = Account()
         bank = Bank()
         bank.deposit_to_account(account, 1000)
@@ -205,6 +205,22 @@ class BankTest(unittest.TestCase):
         result = bank.transfer_abroad(account, second_withdrawal_amount)
 
         self.assertEqual(second_trn_operation_result, result)
+
+    def test_withdraw_to_limit_and_transfer_abroad_to_limit_in_same_week(self):
+        account = Account() 
+        bank = Bank()
+        bank.deposit_to_account(account, 2000)     
+        result_withdraw = bank.withdraw_from_account(account, 420)
+        result_transfer_abroad = bank.transfer_abroad(account, 500)
+
+        self.assertEqual(OperationResult.Success, result_withdraw)        
+        self.assertEqual(OperationResult.Success, result_transfer_abroad)
+    
+    # test_withdraw_to_limit_and_tranfer_abroad_to_limit_in_same_week different days
+    # def test_tranfer_abroad_to_limit_and_withdraw_to_limit_and_in_same_week(self):
+
+    # transfer abroad 500, disallow 400 in cash withdrawals
+    # withdraw 420, disallow 500 in transfers abroad
 
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:

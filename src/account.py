@@ -36,7 +36,6 @@ class Account():
         self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime, DebitType.ElectronicTransferDomestic))
         return OperationResult.Success
 
-
     def _transfer_abroad(self, amount, datetime):
         if (self.__balance < amount):
             return OperationResult.InsufficientFunds
@@ -58,6 +57,25 @@ class Account():
         amount = 0   
         for trn in self.Transactions:
             if trn.Type == TransactionType.Debit and trn.DateTime.date() == date.date():
+                amount += trn.Amount
+        
+        return amount
+
+    def _get_amount_transfered_abroad_this_week_so_far_for_date(self, date):
+        day_of_week_index = date.weekday()
+        money_withdrawn = 0
+        if (day_of_week_index > 0):
+            for i in range(0, day_of_week_index + 1):
+                money_withdrawn += self._get_amount_transfered_abroad_for_date(date - timedelta(days = i))
+
+        return money_withdrawn
+
+    def _get_amount_transfered_abroad_for_date(self, date):
+        amount = 0   
+        for trn in self.Transactions:
+            if trn.Type == TransactionType.Debit \
+            and trn.DebitType == DebitType.ElectronicTransferAbroad \
+            and trn.DateTime.date() == date.date():
                 amount += trn.Amount
         
         return amount
