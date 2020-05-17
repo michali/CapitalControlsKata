@@ -28,7 +28,7 @@ class Bank():
         return account_to._deposit(amount, date)
 
     def transfer_abroad(self, account, amount):
-        if amount <= Bank.__max_weekly_bank_transfer_abroad_limit:
+        if self.__can_transfer_abroad(account, amount):  
             return account._transfer_abroad(amount, self.__datetimeprovider.now())
 
         return OperationResult.NotAllowed
@@ -39,3 +39,9 @@ class Bank():
         money_withdrawn_this_week = account._get_withdrawn_amount_this_week_so_far_for_date(now)
         
         return money_withdrawn_this_week + amount <= Bank.__max_daily_limit * (day_of_week_index + 1)        
+
+    def __can_transfer_abroad(self, account, amount): 
+        now = self.__datetimeprovider.now() 
+        money_withdrawn_this_week = account._get_withdrawn_amount_this_week_so_far_for_date(now)
+        
+        return money_withdrawn_this_week + amount <= Bank.__max_weekly_bank_transfer_abroad_limit     

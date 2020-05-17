@@ -175,7 +175,7 @@ class BankTest(unittest.TestCase):
        (501, OperationResult.NotAllowed),
        (502, OperationResult.NotAllowed)
     ])
-    def test_transfer_abroad_up_to_weekly_limit(self, amount, operation_result):
+    def test_transfer_abroad_up_to_weekly_limit_500(self, amount, operation_result):
         account = Account()
         bank = Bank()
         bank.deposit_to_account(account, 1000)
@@ -183,6 +183,27 @@ class BankTest(unittest.TestCase):
         result = bank.transfer_abroad(account, amount)
 
         self.assertEqual(operation_result, result)
+
+    @parameterized.expand([
+       (250, 250, OperationResult.Success), 
+       (100, 100, OperationResult.Success), 
+       (250, 251, OperationResult.NotAllowed),
+       (499, 2, OperationResult.NotAllowed)
+    ])
+    def test_transfer_abroad_up_to_weekly_limit_two_transactions(self, first_withdrawal_amount, second_withdrawal_amount, second_trn_operation_result):
+        datetimemock = Mock()
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 11, 12, 0, 0)
+        account = Account()
+        bank = Bank(datetimemock)
+        bank.deposit_to_account(account, 2000)     
+
+        bank.transfer_abroad(account, first_withdrawal_amount)
+
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 15, 12, 0, 0)
+
+        result = bank.transfer_abroad(account, second_withdrawal_amount)
+
+        self.assertEqual(second_trn_operation_result, result)
 
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
