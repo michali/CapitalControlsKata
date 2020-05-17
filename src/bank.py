@@ -14,10 +14,15 @@ class Bank():
         return account._deposit(amount, self.__datetimeprovider.now())
 
     def withdraw_from_account(self, account, amount):       
-        if not self.__can_withdraw(account, amount):  
-            return OperationResult.NotAllowed            
+        if not self.__can_withdraw(account, amount):
+            if not self.__is_fresh_deposit(account, amount):  
+                return OperationResult.NotAllowed            
             
         return account._withdraw(amount, self.__datetimeprovider.now())
+
+    def __is_fresh_deposit(self, account, amount):
+        total_deposits_after_cutoff_date = account._get_total_amount_for_credits(Bank.__start_date_for_fresh_transactions)
+        return amount == total_deposits_after_cutoff_date
     
     def transfer(self, account_from, account_to, amount):
         date = self.__datetimeprovider.now()

@@ -230,7 +230,20 @@ class BankTest(unittest.TestCase):
         result_withdraw = bank.withdraw_from_account(account, 420)
 
         self.assertEqual(OperationResult.Success, result_transfer_abroad)
-        self.assertEqual(OperationResult.Success, result_withdraw)           
+        self.assertEqual(OperationResult.Success, result_withdraw)
+
+    def test_new_deposits_are_exempt_from_withdrawal_restrictions(self):
+        datetimemock = Mock()        
+        account = Account() 
+        bank = Bank(datetimemock)      
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 18, 12, 0, 0) ## Monday
+        bank.deposit_to_account(account, 200)
+        result_withdraw = bank.withdraw_from_account(account, 200)
+
+        self.assertEqual(OperationResult.Success, result_withdraw)
+        self.assertEqual(0, account.Balance)
+
+    # def test_new_deposits intertwine with withdrawals
 
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
