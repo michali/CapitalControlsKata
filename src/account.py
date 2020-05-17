@@ -33,7 +33,7 @@ class Account():
             return OperationResult.InsufficientFunds
 
         self.__balance -= amount
-        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime, DebitType.DomesticElectronicTransfer))
+        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime, DebitType.ElectronicTransferDomestic))
         return OperationResult.Success
 
 
@@ -42,5 +42,5 @@ class Account():
             return OperationResult.InsufficientFunds
 
         self.__balance -= amount
-        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime))
+        self.__transactions.add(Transaction(TransactionType.Debit, amount, datetime, DebitType.ElectronicTransferAbroad))
         return OperationResult.Success

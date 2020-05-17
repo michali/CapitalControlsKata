@@ -158,7 +158,7 @@ class BankTest(unittest.TestCase):
         self.assertNotEqual(None, transaction)
         self.assertEqual(50, transaction.Amount)
         self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
-        self.assertEqual(DebitType.DomesticElectronicTransfer, transaction.DebitType)
+        self.assertEqual(DebitType.ElectronicTransferDomestic, transaction.DebitType)
 
     @parameterized.expand([
        (100, 50),
@@ -211,6 +211,7 @@ class BankTest(unittest.TestCase):
         self.assertNotEqual(None, transaction)
         self.assertEqual(withdrawal_amount, transaction.Amount)
         self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
+        self.assertEqual(DebitType.ElectronicTransferAbroad, transaction.DebitType)
 
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
