@@ -255,7 +255,7 @@ class BankTest(unittest.TestCase):
     def test_can_withdraw_daily_amount_with_rollover_plus_deposits_after_20200518(self, day_of_month_to_withdraw, withdrawal_amount, withdrawal_result):
         datetimemock = Mock()        
         account = Account() 
-        bank = Bank(datetimemock)      
+        bank = Bank(datetimemock)  
         datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # Day before restrictions are eased for new deposits
         bank.deposit_to_account(account, 120)
 
@@ -268,26 +268,33 @@ class BankTest(unittest.TestCase):
         if withdrawal_result==OperationResult.Success:
             self.assertEqual(320 - withdrawal_amount, account.Balance)
         else:
-            self.assertEqual(320, account.Balance )
+            self.assertEqual(320, account.Balance)
 
-    def test_can_transfer_abroad_above_weekly_limit_with_deposits_after_20200518(self):
+    @parameterized.expand([
+       (500, 500, OperationResult.Success),
+       (500, 499, OperationResult.Success),
+       (500, 1001, OperationResult.NotAllowed)
+    ])
+    def test_can_transfer_abroad_above_weekly_limit_with_deposits_after_20200518(self, after_restrictions_deposit_amount, withdrawal_amount, withdrawal_operation_result):
         datetimemock = Mock()        
         account = Account() 
         bank = Bank(datetimemock)      
         datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # Day before restrictions are eased for new deposits
-        bank.deposit_to_account(account, 500)
+        bank.deposit_to_account(account, 1000)
 
         datetimemock.now.return_value = datetime.datetime(2020, 5, 19, 12, 0, 0) 
-        bank.deposit_to_account(account, 500)
-        result = bank.transfer_abroad(account, 1000)
+        bank.deposit_to_account(account, after_restrictions_deposit_amount)
+        result = bank.transfer_abroad(account, withdrawal_amount)
 
-        self.assertEqual(OperationResult.Success, result)
+        self.assertEqual(withdrawal_operation_result, result)
 
-        self.assertEqual(0, account.Balance)
+        if withdrawal_operation_result == OperationResult.Success:
+            self.assertEqual(1000 + after_restrictions_deposit_amount - withdrawal_amount, account.Balance)
+        else:
+            self.assertEqual(1000 + after_restrictions_deposit_amount, account.Balance)
     
 
-    # def test with transfer abroad
-    # def test_new_deposits intertwine with withdrawals
+    # def test_new_deposits intertwine with withdrawals and transfer abroad
     # intertwine with withdrawals and transfers abroad
     
 
