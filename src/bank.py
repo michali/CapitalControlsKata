@@ -41,21 +41,14 @@ class Bank():
         return account_to._deposit(amount, date)
 
     def transfer_abroad(self, account, amount):
-        if self.__can_transfer_abroad(account, amount) or self.__can_transfer_abroad_with_fresh_deposit(account, amount):  
+        if self.__can_transfer_abroad_with_fresh_deposit(account, amount):  
             return account._transfer_abroad(amount, self.__datetimeprovider.now())
 
         return OperationResult.NotAllowed
-
-    def __can_transfer_abroad(self, account, amount): 
-        now = self.__datetimeprovider.now() 
-        
-        money_transfered_abroad_this_week = account._get_amount_transfered_abroad_this_week_so_far_for_date(now)
-
-        return money_transfered_abroad_this_week + amount <= Bank.__max_weekly_bank_transfer_abroad_limit     
 
     def __can_transfer_abroad_with_fresh_deposit(self, account, amount):
         total_deposits_after_cutoff_date = account._get_total_amount_for_credits_on_and_after_date(Bank.__start_date_for_fresh_transactions)
 
         money_transfered_abroad_this_week = account._get_amount_transfered_abroad_this_week_so_far_for_date(self.__datetimeprovider.now())
 
-        return amount == Bank.__max_weekly_bank_transfer_abroad_limit + total_deposits_after_cutoff_date - money_transfered_abroad_this_week
+        return amount <= Bank.__max_weekly_bank_transfer_abroad_limit + total_deposits_after_cutoff_date - money_transfered_abroad_this_week

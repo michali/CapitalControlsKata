@@ -176,9 +176,11 @@ class BankTest(unittest.TestCase):
        (501, OperationResult.NotAllowed),
        (502, OperationResult.NotAllowed)
     ])
-    def test_transfer_abroad_up_to_weekly_limit(self, amount, operation_result):
+    def test_transfer_abroad_up_to_weekly_limit_no_deposits_after_restrictions_eased_20180518(self, amount, operation_result):
         account = Account()
-        bank = Bank()
+        datetimemock = Mock()
+        bank = Bank(datetimemock)
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 10, 12, 0, 0) 
         bank.deposit_to_account(account, 1000)
 
         result = bank.transfer_abroad(account, amount)
@@ -209,9 +211,9 @@ class BankTest(unittest.TestCase):
     def test_withdraw_to_limit_and_transfer_abroad_to_limit_in_same_week(self):
         datetimemock = Mock()        
         account = Account()        
-        bank = Bank(datetimemock)       
-        bank.deposit_to_account(account, 2000)  
+        bank = Bank(datetimemock)     
         datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # End of week, can withdraw to maximum withdrawal limit
+        bank.deposit_to_account(account, 2000)  
    
         result_withdraw = bank.withdraw_from_account(account, 420)
         result_transfer_abroad = bank.transfer_abroad(account, 500)
@@ -222,9 +224,9 @@ class BankTest(unittest.TestCase):
     def test_transfer_abroad_to_limit_and_withdraw_to_limit_and_in_same_week(self):
         datetimemock = Mock()        
         account = Account()        
-        bank = Bank(datetimemock)        
-        bank.deposit_to_account(account, 2000)   
+        bank = Bank(datetimemock)       
         datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # End of week, can withdraw to maximum withdrawal limit
+        bank.deposit_to_account(account, 2000)   
          
         result_transfer_abroad = bank.transfer_abroad(account, 500) 
         result_withdraw = bank.withdraw_from_account(account, 420)
@@ -273,6 +275,7 @@ class BankTest(unittest.TestCase):
     @parameterized.expand([
        (500, 500, OperationResult.Success),
        (500, 499, OperationResult.Success),
+       (1500, 2000, OperationResult.Success),
        (500, 1001, OperationResult.NotAllowed)
     ])
     def test_can_transfer_abroad_above_weekly_limit_with_deposits_after_20200518(self, after_restrictions_deposit_amount, withdrawal_amount, withdrawal_operation_result):
@@ -292,8 +295,9 @@ class BankTest(unittest.TestCase):
             self.assertEqual(1000 + after_restrictions_deposit_amount - withdrawal_amount, account.Balance)
         else:
             self.assertEqual(1000 + after_restrictions_deposit_amount, account.Balance)
-    
-
+    # remove one of the two withdrawal checks?
+    #multiple withdrawals
+    #multiple transfers abroad
     # def test_new_deposits intertwine with withdrawals and transfer abroad
     # intertwine with withdrawals and transfers abroad
     
