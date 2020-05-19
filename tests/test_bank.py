@@ -327,7 +327,7 @@ class BankTest(unittest.TestCase):
         datetimemock.now.return_value = datetime.datetime(2020, 5, 18, 12, 0, 0) 
         bank.deposit_to_account(account, 1000)
         bank.withdraw_from_account(account, 200)       
-        result = bank.transfer_abroad(account, 1400)
+        result = bank.transfer_abroad(account, 1600)
 
         self.assertEqual(OperationResult.NotAllowed, result)
         self.assertEqual(2800, account.Balance)
