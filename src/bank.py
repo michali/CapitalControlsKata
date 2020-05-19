@@ -14,19 +14,11 @@ class Bank():
         return account._deposit(amount, self.__datetimeprovider.now())
 
     def withdraw_from_account(self, account, amount):       
-        if self.__can_withdraw(account, amount) or self.__can_withdraw_with_fresh_deposit(account, amount):  
+        if self.__can_withdraw(account, amount):  
             return account._withdraw(amount, self.__datetimeprovider.now())
+        return OperationResult.NotAllowed          
 
-        return OperationResult.NotAllowed   
-
-    def __can_withdraw(self, account, amount): 
-        now = self.__datetimeprovider.now()
-        day_of_week_index = now.weekday()     
-        money_withdrawn_this_week = account._get_withdrawn_amount_this_week_so_far_for_date(now)
-        
-        return money_withdrawn_this_week + amount <= Bank.__max_daily_limit * (day_of_week_index + 1)             
-
-    def __can_withdraw_with_fresh_deposit(self, account, amount):
+    def __can_withdraw(self, account, amount):
         total_deposits_after_cutoff_date = account._get_total_amount_for_credits_on_and_after_date(Bank.__start_date_for_fresh_transactions)
         day_of_week_index = self.__datetimeprovider.now().weekday()
         return amount <= total_deposits_after_cutoff_date + Bank.__max_daily_limit * (day_of_week_index + 1) - account._get_withdrawn_amount_this_week_so_far_for_date(self.__datetimeprovider.now())
@@ -41,12 +33,12 @@ class Bank():
         return account_to._deposit(amount, date)
 
     def transfer_abroad(self, account, amount):
-        if self.__can_transfer_abroad_with_fresh_deposit(account, amount):  
+        if self.__can_transfer_abroad(account, amount):  
             return account._transfer_abroad(amount, self.__datetimeprovider.now())
 
         return OperationResult.NotAllowed
 
-    def __can_transfer_abroad_with_fresh_deposit(self, account, amount):
+    def __can_transfer_abroad(self, account, amount):
         total_deposits_after_cutoff_date = account._get_total_amount_for_credits_on_and_after_date(Bank.__start_date_for_fresh_transactions)
 
         money_transfered_abroad_this_week = account._get_amount_transfered_abroad_this_week_so_far_for_date(self.__datetimeprovider.now())

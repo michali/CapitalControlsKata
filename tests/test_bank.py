@@ -221,7 +221,7 @@ class BankTest(unittest.TestCase):
         self.assertEqual(OperationResult.Success, result_withdraw)        
         self.assertEqual(OperationResult.Success, result_transfer_abroad)
 
-    def test_transfer_abroad_to_limit_and_withdraw_to_limit_and_in_same_week(self):
+    def test_transfer_abroad_to_limit_and_withdraw_to_limit_in_same_week(self):
         datetimemock = Mock()        
         account = Account()        
         bank = Bank(datetimemock)       
