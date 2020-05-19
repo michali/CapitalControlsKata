@@ -62,10 +62,10 @@ class Account():
         
         return amount
 
-    def _get_total_amount_for_credits(self, date):
+    def _get_total_amount_for_credits_on_and_after_date(self, date):
         total_deposits_after_cutoff_date = 0
         for trn in self.Transactions:
-            if trn.Type == TransactionType.Credit and trn.DateTime.date() == date.date():
+            if trn.Type == TransactionType.Credit and trn.DateTime.date() >= date.date():
                 total_deposits_after_cutoff_date += trn.Amount        
 
         return total_deposits_after_cutoff_date

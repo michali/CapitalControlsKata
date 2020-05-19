@@ -157,6 +157,7 @@ class BankTest(unittest.TestCase):
         account = Account()
         datetimemock = Mock()
         bank = Bank(datetimemock)
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 10, 12, 0, 0) 
         bank.deposit_to_account(account, 2000)
 
         datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_first_trn, 12, 0, 0)  
@@ -232,18 +233,50 @@ class BankTest(unittest.TestCase):
         self.assertEqual(OperationResult.Success, result_transfer_abroad)
         self.assertEqual(OperationResult.Success, result_withdraw)
 
-    def test_new_deposits_are_exempt_from_withdrawal_restrictions(self):
+    @parameterized.expand([
+       (200, 200, 0, OperationResult.Success),
+       (200, 100, 100, OperationResult.Success)
+    ])
+    def test_deposits_after_20200518_are_exempt_from_withdrawal_restrictions(self, deposit_amount, withdrawal_amount, balance, operation_result):
         datetimemock = Mock()        
         account = Account() 
         bank = Bank(datetimemock)      
         datetimemock.now.return_value = datetime.datetime(2020, 5, 18, 12, 0, 0) ## Monday
+        bank.deposit_to_account(account, deposit_amount)
+        result_withdraw = bank.withdraw_from_account(account, withdrawal_amount)
+
+        self.assertEqual(operation_result, result_withdraw)
+        self.assertEqual(balance, account.Balance) 
+
+    @parameterized.expand([
+       (18, 260, OperationResult.Success), # Monday, Day restrictions are eased for new deposits
+       (19, 320, OperationResult.Success),
+       (19, 321, OperationResult.NotAllowed)
+    ])
+    def test_can_withdraw_daily_amount_with_rollover_plus_deposits_after_20200518(self, day_of_month_to_withdraw, withdrawal_amount, withdrawal_result):
+        datetimemock = Mock()        
+        account = Account() 
+        bank = Bank(datetimemock)      
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # Day before restrictions are eased for new deposits
+        bank.deposit_to_account(account, 120)
+
+        datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_to_withdraw, 12, 0, 0) 
         bank.deposit_to_account(account, 200)
-        result_withdraw = bank.withdraw_from_account(account, 200)
+        result = bank.withdraw_from_account(account, withdrawal_amount)
 
-        self.assertEqual(OperationResult.Success, result_withdraw)
-        self.assertEqual(0, account.Balance)
+        self.assertEqual(withdrawal_result, result)
 
+        if withdrawal_result==OperationResult.Success:
+            self.assertEqual(320 - withdrawal_amount, account.Balance)
+        else:
+            self.assertEqual(320, account.Balance )
+
+    
+
+    # def test with transfer abroad
     # def test_new_deposits intertwine with withdrawals
+    # intertwine with withdrawals and transfers abroad
+    
 
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
