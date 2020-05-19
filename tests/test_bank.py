@@ -194,13 +194,12 @@ class BankTest(unittest.TestCase):
     def test_transfer_abroad_up_to_weekly_limit_two_transactions(self, day_of_month_first_trn, first_withdrawal_amount, day_of_month_second_trn, second_withdrawal_amount, second_trn_operation_result):
         datetimemock = Mock()        
         account = Account()        
-        bank = Bank(datetimemock)
+        bank = Bank(datetimemock)     
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 15, 12, 0, 0)
         bank.deposit_to_account(account, 2000)     
 
         datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_first_trn, 12, 0, 0)  
         bank.transfer_abroad(account, first_withdrawal_amount)
-
-        datetimemock.now.return_value = datetime.datetime(2020, 5, 15, 12, 0, 0)
 
         datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_second_trn, 12, 0, 0) 
         result = bank.transfer_abroad(account, second_withdrawal_amount)
@@ -271,6 +270,20 @@ class BankTest(unittest.TestCase):
         else:
             self.assertEqual(320, account.Balance )
 
+    def test_can_transfer_abroad_above_weekly_limit_with_deposits_after_20200518(self):
+        datetimemock = Mock()        
+        account = Account() 
+        bank = Bank(datetimemock)      
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # Day before restrictions are eased for new deposits
+        bank.deposit_to_account(account, 500)
+
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 19, 12, 0, 0) 
+        bank.deposit_to_account(account, 500)
+        result = bank.transfer_abroad(account, 1000)
+
+        self.assertEqual(OperationResult.Success, result)
+
+        self.assertEqual(0, account.Balance)
     
 
     # def test with transfer abroad
