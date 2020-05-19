@@ -295,12 +295,42 @@ class BankTest(unittest.TestCase):
             self.assertEqual(1000 + after_restrictions_deposit_amount - withdrawal_amount, account.Balance)
         else:
             self.assertEqual(1000 + after_restrictions_deposit_amount, account.Balance)
-    # remove one of the two withdrawal checks?
+
+    
     #multiple withdrawals
     #multiple transfers abroad
     # def test_new_deposits intertwine with withdrawals and transfer abroad
     # intertwine with withdrawals and transfers abroad
-    
+    def test_can_withdraw_and_transfer_abroad_daily_amount_with_rollover_plus_deposits_after_20200518(self):
+        datetimemock = Mock()        
+        account = Account() 
+        bank = Bank(datetimemock)  
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # Day before restrictions are eased for new deposits
+        bank.deposit_to_account(account, 120)
+
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 18, 12, 0, 0) 
+        bank.deposit_to_account(account, 2000)
+        bank.withdraw_from_account(account, 100)
+        bank.withdraw_from_account(account, 100)        
+        result = bank.transfer_abroad(account, 1920)
+
+        self.assertEqual(OperationResult.Success, result)
+        self.assertEqual(0, account.Balance)
+
+    def test_can_withdraw_and_transfer_abroad_daily_amount_with_rollover_plus_deposits_after_20200518_over_limit_not_allowed(self):
+        datetimemock = Mock()        
+        account = Account() 
+        bank = Bank(datetimemock)  
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # Day before restrictions are eased for new deposits
+        bank.deposit_to_account(account, 2000)
+
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 18, 12, 0, 0) 
+        bank.deposit_to_account(account, 1000)
+        bank.withdraw_from_account(account, 200)       
+        result = bank.transfer_abroad(account, 1400)
+
+        self.assertEqual(OperationResult.NotAllowed, result)
+        self.assertEqual(2800, account.Balance)
 
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
