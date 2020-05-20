@@ -23,7 +23,13 @@ class Bank():
         money_withdrawn_this_week_so_far_for_date = account._get_withdrawn_amount_this_week_so_far_for_date(self.__datetimeprovider.now())
         return amount <= total_deposits_after_cutoff_date + self.__calculate_max_withdrawal_limit_on_current_day_of_week() - money_withdrawn_this_week_so_far_for_date
     
-    def __calculate_max_withdrawal_limit_on_current_day_of_week(self):
+    def __calculate_max_withdrawal_limit_on_current_day_of_week(self):  
+        now =  self.__datetimeprovider.now().date()
+
+        if (now >= datetime(2020, 6, 1).date()):
+            day_of_week_index2 = (now - datetime(2020, 6, 1).date()).days
+            return Bank.__max_daily_limit * (day_of_week_index2 + 1)
+
         day_of_week_index = self.__datetimeprovider.now().weekday()
         return Bank.__max_daily_limit * (day_of_week_index + 1)
 

@@ -332,6 +332,19 @@ class BankTest(unittest.TestCase):
         self.assertEqual(OperationResult.NotAllowed, result)
         self.assertEqual(2800, account.Balance)
 
+    def test_missed_daily_cash_withdrawals_can_be_backed_up_for_two_weeks(self):
+        datetimemock = Mock()        
+        account = Account() 
+        bank = Bank(datetimemock)  
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 1, 12, 0, 0) # This is a date before restrictions are eased (18-5-2020) for new deposits
+        bank.deposit_to_account(account, 2000)
+
+        datetimemock.now.return_value = datetime.datetime(2020, 6, 20, 14, 0, 0)
+        result = bank.withdraw_from_account(account, 840)
+
+        self.assertEqual(OperationResult.Success, result)
+        self.assertEqual(1160, account.Balance)
+
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
             if (condition(transaction)):
