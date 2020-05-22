@@ -53,7 +53,9 @@ class BankTest(unittest.TestCase):
     ])
     def test_withdraw_removes_from_balance(self, initialbalance, withdrawalamount):
         account = Account()
-        bank = Bank()
+        datetimemock = Mock()
+        datetimemock.now.return_value = datetime.datetime(2020, 6, 1, 15, 45, 0)
+        bank = Bank(datetimemock)
         bank.deposit_to_account(account, initialbalance)
 
         result = bank.withdraw_from_account(account, withdrawalamount)
@@ -68,7 +70,9 @@ class BankTest(unittest.TestCase):
     ])
     def test_withdraw_overdraft_results_in_error(self, withdrawalamount):
         account = Account()
-        bank = Bank()
+        datetimemock = Mock()
+        datetimemock.now.return_value = datetime.datetime(2020, 6, 1, 15, 45, 0)
+        bank = Bank(datetimemock)
         bank.deposit_to_account(account, 10)
 
         result = bank.withdraw_from_account(account, withdrawalamount)
@@ -83,7 +87,8 @@ class BankTest(unittest.TestCase):
     ])
     def test_withdraw_creates_transaction(self, withdrawal_amount):
         datetimemock = Mock()
-        datetimemock.now.return_value = datetime.datetime(2020, 1, 1, 15, 45, 0)
+        trasaction_datetime = datetime.datetime(2020, 6, 1, 15, 45, 0) 
+        datetimemock.now.return_value = trasaction_datetime
 
         account = Account()
         bank = Bank(datetimemock)
@@ -93,7 +98,7 @@ class BankTest(unittest.TestCase):
         transaction = self.__get_transaction(account, lambda t: t.Type == TransactionType.Debit)
         self.assertNotEqual(None, transaction)
         self.assertEqual(withdrawal_amount, transaction.Amount)
-        self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
+        self.assertEqual(trasaction_datetime, transaction.DateTime)
         self.assertEqual(DebitType.CashWithdrawal, transaction.DebitType)
 
     def test_eletronic_transfer(self):
@@ -131,7 +136,7 @@ class BankTest(unittest.TestCase):
     
     def test_withdrawal_over_daily_amount_in_multiple_transactions_across_two_days_is_allowed(self):
         datetimemock = Mock()
-        datetimemock.now.return_value = datetime.datetime(2020, 1, 1, 15, 45, 0)
+        datetimemock.now.return_value = datetime.datetime(2020, 6, 1, 15, 45, 0)
 
         account = Account()
         bank = Bank(datetimemock)
@@ -139,19 +144,18 @@ class BankTest(unittest.TestCase):
 
         bank.withdraw_from_account(account, 60)
 
-        datetimemock.now.return_value = datetime.datetime(2020, 1, 2, 15, 46, 0)
+        datetimemock.now.return_value = datetime.datetime(2020, 6, 2, 15, 46, 0)
         result = bank.withdraw_from_account(account, 10)
 
         self.assertEqual(OperationResult.Success, result)
         self.assertEqual(30, account.Balance)
 
     @parameterized.expand([
-       (11, 60, 16, 250, OperationResult.Success), #first day: Monday, second day: Saturday
-       (12, 60, 17, 360, OperationResult.Success), #first day: Tuesday, second day: Sunday
-       (14, 60, 17, 361, OperationResult.NotAllowed), #first day: Thursday, second day: Sunday
-       (11, 60, 12, 61, OperationResult.NotAllowed), #first day: Monday, second day: Tuesday
-       (16, 60, 20, 181, OperationResult.NotAllowed), #first day: Saturday, second day: Wednesday next week
-       (11, 60, 12, 61, OperationResult.NotAllowed), #first day: Monday, second day: Saturday
+       (8, 60, 13, 250, OperationResult.Success), 
+       (9, 60, 14, 360, OperationResult.Success), 
+       (1, 60, 4, 361, OperationResult.NotAllowed), 
+       (1, 60, 2, 61, OperationResult.NotAllowed), 
+       (1, 60, 5, 241, OperationResult.NotAllowed)
     ])
     def test_withdrawal_if_less_than_the_limit_was_drawn_throughout_the_week_allow_withdrawal_up_to_today(self, day_of_month_first_trn, first_withdrawal_amount, day_of_month_second_trn, second_withdrawal_amount, second_trn_operation_result):
         account = Account()
@@ -160,10 +164,10 @@ class BankTest(unittest.TestCase):
         datetimemock.now.return_value = datetime.datetime(2020, 5, 10, 12, 0, 0) 
         bank.deposit_to_account(account, 2000)
 
-        datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_first_trn, 12, 0, 0)  
+        datetimemock.now.return_value = datetime.datetime(2020, 6, day_of_month_first_trn, 12, 0, 0)  
         bank.withdraw_from_account(account, first_withdrawal_amount)
 
-        datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_second_trn, 12, 0, 0) 
+        datetimemock.now.return_value = datetime.datetime(2020, 6, day_of_month_second_trn, 12, 0, 0) 
         result = bank.withdraw_from_account(account, second_withdrawal_amount)
 
         self.assertEqual(second_trn_operation_result, result)
@@ -215,6 +219,7 @@ class BankTest(unittest.TestCase):
         datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # End of week, can withdraw to maximum withdrawal limit
         bank.deposit_to_account(account, 2000)  
    
+        datetimemock.now.return_value = datetime.datetime(2020, 6, 7, 12, 0, 0) # End of week, can withdraw to maximum withdrawal limit
         result_withdraw = bank.withdraw_from_account(account, 420)
         result_transfer_abroad = bank.transfer_abroad(account, 500)
 
@@ -225,7 +230,7 @@ class BankTest(unittest.TestCase):
         datetimemock = Mock()        
         account = Account()        
         bank = Bank(datetimemock)       
-        datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # End of week, can withdraw to maximum withdrawal limit
+        datetimemock.now.return_value = datetime.datetime(2020, 6, 7, 12, 0, 0) # End of week, can withdraw to maximum withdrawal limit
         bank.deposit_to_account(account, 2000)   
          
         result_transfer_abroad = bank.transfer_abroad(account, 500) 
@@ -242,7 +247,7 @@ class BankTest(unittest.TestCase):
         datetimemock = Mock()        
         account = Account() 
         bank = Bank(datetimemock)      
-        datetimemock.now.return_value = datetime.datetime(2020, 5, 18, 12, 0, 0) ## Monday
+        datetimemock.now.return_value = datetime.datetime(2020, 6, 1, 12, 0, 0) # Monday
         bank.deposit_to_account(account, deposit_amount)
         result_withdraw = bank.withdraw_from_account(account, withdrawal_amount)
 
@@ -250,9 +255,9 @@ class BankTest(unittest.TestCase):
         self.assertEqual(balance, account.Balance) 
 
     @parameterized.expand([
-       (18, 260, OperationResult.Success), # Monday, Day restrictions are eased for new deposits
-       (19, 320, OperationResult.Success),
-       (19, 321, OperationResult.NotAllowed)
+       (1, 260, OperationResult.Success),
+       (2, 320, OperationResult.Success),
+       (2, 321, OperationResult.NotAllowed)
     ])
     def test_can_withdraw_daily_amount_with_rollover_plus_deposits_after_20200518(self, day_of_month_to_withdraw, withdrawal_amount, withdrawal_result):
         datetimemock = Mock()        
@@ -261,7 +266,7 @@ class BankTest(unittest.TestCase):
         datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # Day before restrictions are eased for new deposits
         bank.deposit_to_account(account, 120)
 
-        datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_to_withdraw, 12, 0, 0) 
+        datetimemock.now.return_value = datetime.datetime(2020, 6, day_of_month_to_withdraw, 12, 0, 0) 
         bank.deposit_to_account(account, 200)
         result = bank.withdraw_from_account(account, withdrawal_amount)
 
@@ -339,7 +344,7 @@ class BankTest(unittest.TestCase):
         datetimemock.now.return_value = datetime.datetime(2020, 5, 1, 12, 0, 0) # This is a date before restrictions are eased (18-5-2020) for new deposits
         bank.deposit_to_account(account, 2000)
 
-        datetimemock.now.return_value = datetime.datetime(2020, 6, 20, 14, 0, 0)
+        datetimemock.now.return_value = datetime.datetime(2020, 6, 20, 14, 0, 0) # 20 days after 1-6-2020, when missed cash allowance started rolling over in the space of two weeks
         result = bank.withdraw_from_account(account, 840)
 
         self.assertEqual(OperationResult.Success, result)

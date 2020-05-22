@@ -26,12 +26,8 @@ class Bank():
     def __calculate_max_withdrawal_limit_on_current_day_of_week(self):  
         now =  self.__datetimeprovider.now().date()
 
-        if (now >= datetime(2020, 6, 1).date()):
-            day_of_week_index2 = (now - datetime(2020, 6, 1).date()).days
-            return Bank.__max_daily_limit * (day_of_week_index2 + 1)
-
-        day_of_week_index = self.__datetimeprovider.now().weekday()
-        return Bank.__max_daily_limit * (day_of_week_index + 1)
+        day_of_week_index_two_weeks = (now - datetime(2020, 6, 1).date()).days
+        return Bank.__max_daily_limit * (day_of_week_index_two_weeks + 1)
 
     def transfer(self, account_from, account_to, amount):
         date = self.__datetimeprovider.now()
