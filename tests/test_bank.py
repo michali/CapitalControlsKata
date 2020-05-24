@@ -337,15 +337,23 @@ class BankTest(unittest.TestCase):
         self.assertEqual(OperationResult.NotAllowed, result)
         self.assertEqual(2800, account.Balance)
 
-    def test_missed_daily_cash_withdrawals_can_roll_over_daily_for_up_to_two_weeks_for_old_deposits(self):
+    @parameterized.expand([
+       (14, 6, 840),
+       (15, 6, 60),
+       (16, 6, 120),
+       (30, 6, 120),
+       (30, 7, 240),
+       (30, 7, 60),
+    ])
+    def test_missed_daily_cash_withdrawals_can_roll_over_daily_for_up_to_two_weeks_for_old_deposits(self, day, month, withdrawal_amount):
         datetimemock = Mock()        
         account = Account() 
         bank = Bank(datetimemock)  
         datetimemock.now.return_value = datetime.datetime(2020, 5, 1, 12, 0, 0) # This is a date before restrictions are eased (18-5-2020) for new deposits
         bank.deposit_to_account(account, 2000)
 
-        datetimemock.now.return_value = datetime.datetime(2020, 6, 14, 12, 0, 0) # End of second week after 1-6-2020, when missed cash allowance started rolling over in the space of two weeks
-        result = bank.withdraw_from_account(account, 840)
+        datetimemock.now.return_value = datetime.datetime(2020, month, day, 12, 0, 0) # End of second week after 1-6-2020, when missed cash allowance started rolling over in the space of two weeks
+        result = bank.withdraw_from_account(account, withdrawal_amount)
 
         self.assertEqual(OperationResult.Success, result)
 
