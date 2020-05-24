@@ -337,18 +337,34 @@ class BankTest(unittest.TestCase):
         self.assertEqual(OperationResult.NotAllowed, result)
         self.assertEqual(2800, account.Balance)
 
-    def test_missed_daily_cash_withdrawals_can_be_backed_up_for_two_weeks(self):
+    def test_missed_daily_cash_withdrawals_can_roll_over_daily_for_up_to_two_weeks_for_old_deposits(self):
         datetimemock = Mock()        
         account = Account() 
         bank = Bank(datetimemock)  
         datetimemock.now.return_value = datetime.datetime(2020, 5, 1, 12, 0, 0) # This is a date before restrictions are eased (18-5-2020) for new deposits
         bank.deposit_to_account(account, 2000)
 
-        datetimemock.now.return_value = datetime.datetime(2020, 6, 20, 14, 0, 0) # 20 days after 1-6-2020, when missed cash allowance started rolling over in the space of two weeks
+        datetimemock.now.return_value = datetime.datetime(2020, 6, 14, 12, 0, 0) # 20 days after 1-6-2020, when missed cash allowance started rolling over in the space of two weeks
         result = bank.withdraw_from_account(account, 840)
 
         self.assertEqual(OperationResult.Success, result)
-        self.assertEqual(1160, account.Balance)
+
+    @parameterized.expand([
+       (14, 900),
+       (15, 900),
+       (16, 121),
+    ])
+    def test_missed_daily_cash_withdrawals_over_two_weeks_old_does_not_roll_over_for_old_deposits(self, day, withdrawal_amount):
+        datetimemock = Mock()        
+        account = Account() 
+        bank = Bank(datetimemock)  
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 1, 12, 0, 0) # This is a date before restrictions are eased (18-5-2020) for new deposits
+        bank.deposit_to_account(account, 2000)
+
+        datetimemock.now.return_value = datetime.datetime(2020, 6, day, 12, 0, 0) # 20 days after 1-6-2020, when missed cash allowance started rolling over in the space of two weeks
+        result = bank.withdraw_from_account(account, withdrawal_amount)
+
+        self.assertEqual(OperationResult.NotAllowed, result)
 
     def __get_transaction(self, account, condition):
         for transaction in account.Transactions:
