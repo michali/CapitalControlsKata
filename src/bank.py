@@ -26,10 +26,10 @@ class Bank():
     def __calculate_max_withdrawal_limit_on_current_day_of_week(self):  
         now =  self.__datetimeprovider.now().date()
 
-        day_of_week_index_two_weeks = (now - datetime(2020, 6, 1).date()).days + 1
+        day_of_week_index_two_weeks = ((now - datetime(2020, 6, 1).date()).days + 1) % 14
 
-        if day_of_week_index_two_weeks > 14:
-            day_of_week_index_two_weeks = day_of_week_index_two_weeks - 14
+        if day_of_week_index_two_weeks == 0:
+            day_of_week_index_two_weeks = 14
 
         return Bank.__max_daily_limit * day_of_week_index_two_weeks
 
