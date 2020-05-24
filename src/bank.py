@@ -28,10 +28,12 @@ class Bank():
 
         day_of_week_index_two_weeks = ((now - datetime(2020, 6, 1).date()).days + 1) % 14
 
-        if day_of_week_index_two_weeks == 0:
-            day_of_week_index_two_weeks = 14
+        day_of_week_index_two_weeks = self.__adjust_for_end_of_two_week_period(day_of_week_index_two_weeks)
 
         return Bank.__max_daily_limit * day_of_week_index_two_weeks
+
+    def __adjust_for_end_of_two_week_period(self, day_of_week_index_two_weeks):
+        return 14 if day_of_week_index_two_weeks == 0 else day_of_week_index_two_weeks
 
     def transfer(self, account_from, account_to, amount):
         date = self.__datetimeprovider.now()
