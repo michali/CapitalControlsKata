@@ -46,6 +46,11 @@ class BankTest(unittest.TestCase):
         self.assertEqual(amount, transaction.Amount)
         self.assertEqual(datetime.datetime(2020, 1, 1, 15, 45, 0), transaction.DateTime)
 
+    def __get_first_transaction(self, account):
+        for transaction in account.Transactions:
+            break
+        return transaction
+
     @parameterized.expand([
        (10, 5),
        (20, 10),
@@ -101,6 +106,12 @@ class BankTest(unittest.TestCase):
         self.assertEqual(trasaction_datetime, transaction.DateTime)
         self.assertEqual(DebitType.CashWithdrawal, transaction.DebitType)
 
+    def __get_transaction(self, account, condition):
+        for transaction in account.Transactions:
+            if (condition(transaction)):
+                return transaction
+        return None
+
     def test_eletronic_transfer(self):
         account_from = Account()
         account_to = Account()
@@ -151,11 +162,12 @@ class BankTest(unittest.TestCase):
         self.assertEqual(30, account.Balance)
 
     @parameterized.expand([
-       (8, 60, 13, 250, OperationResult.Success), 
-       (9, 60, 14, 360, OperationResult.Success), 
+       (8, 60, 13, 250, OperationResult.Success),        
        (1, 60, 4, 361, OperationResult.NotAllowed), 
        (1, 60, 2, 61, OperationResult.NotAllowed), 
-       (1, 60, 5, 241, OperationResult.NotAllowed)
+       (1, 60, 5, 241, OperationResult.NotAllowed),
+       (9, 60, 14, 780, OperationResult.Success), 
+       (9, 60, 14, 781, OperationResult.NotAllowed), 
     ])
     def test_withdrawal_if_less_than_the_limit_was_drawn_throughout_the_week_allow_withdrawal_up_to_today(self, day_of_month_first_trn, first_withdrawal_amount, day_of_month_second_trn, second_withdrawal_amount, second_trn_operation_result):
         account = Account()
@@ -204,7 +216,7 @@ class BankTest(unittest.TestCase):
         datetimemock.now.return_value = datetime.datetime(2020, 5, 15, 12, 0, 0)
         bank.deposit_to_account(account, 2000)     
 
-        datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_first_trn, 12, 0, 0)  
+        datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_first_trn, 12, 0, 0)  # One day before 18-5-2020, the day new deposits will be exempt from capital controls
         bank.transfer_abroad(account, first_withdrawal_amount)
 
         datetimemock.now.return_value = datetime.datetime(2020, 5, day_of_month_second_trn, 12, 0, 0) 
@@ -216,11 +228,11 @@ class BankTest(unittest.TestCase):
         datetimemock = Mock()        
         account = Account()        
         bank = Bank(datetimemock)     
-        datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # End of week, can withdraw to maximum withdrawal limit
+        datetimemock.now.return_value = datetime.datetime(2020, 5, 17, 12, 0, 0) # One day before 18-5-2020, the day new deposits will be exempt from capital controls
         bank.deposit_to_account(account, 2000)  
    
-        datetimemock.now.return_value = datetime.datetime(2020, 6, 7, 12, 0, 0) # End of week, can withdraw to maximum withdrawal limit
-        result_withdraw = bank.withdraw_from_account(account, 420)
+        datetimemock.now.return_value = datetime.datetime(2020, 6, 14, 12, 0, 0) # End of two weeks, can withdraw to maximum withdrawal limit
+        result_withdraw = bank.withdraw_from_account(account, 840)
         result_transfer_abroad = bank.transfer_abroad(account, 500)
 
         self.assertEqual(OperationResult.Success, result_withdraw)        
@@ -234,7 +246,7 @@ class BankTest(unittest.TestCase):
         bank.deposit_to_account(account, 2000)   
          
         result_transfer_abroad = bank.transfer_abroad(account, 500) 
-        result_withdraw = bank.withdraw_from_account(account, 420)
+        result_withdraw = bank.withdraw_from_account(account, 840)
 
         self.assertEqual(OperationResult.Success, result_transfer_abroad)
         self.assertEqual(OperationResult.Success, result_withdraw)
@@ -283,7 +295,7 @@ class BankTest(unittest.TestCase):
        (1500, 2000, OperationResult.Success),
        (500, 1001, OperationResult.NotAllowed)
     ])
-    def test_can_transfer_abroad_above_weekly_limit_with_deposits_after_20200518(self, after_restrictions_deposit_amount, withdrawal_amount, withdrawal_operation_result):
+    def test_can_transfer_abroad_above_weekly_limit_with_deposits_after_20200518(self, after_restrictions_deposit_amount, withdrawal_amount, expected_operation_result):
         datetimemock = Mock()        
         account = Account() 
         bank = Bank(datetimemock)      
@@ -294,18 +306,13 @@ class BankTest(unittest.TestCase):
         bank.deposit_to_account(account, after_restrictions_deposit_amount)
         result = bank.transfer_abroad(account, withdrawal_amount)
 
-        self.assertEqual(withdrawal_operation_result, result)
+        self.assertEqual(expected_operation_result, result)
 
-        if withdrawal_operation_result == OperationResult.Success:
+        if expected_operation_result == OperationResult.Success:
             self.assertEqual(1000 + after_restrictions_deposit_amount - withdrawal_amount, account.Balance)
         else:
             self.assertEqual(1000 + after_restrictions_deposit_amount, account.Balance)
 
-    
-    #multiple withdrawals
-    #multiple transfers abroad
-    # def test_new_deposits intertwine with withdrawals and transfer abroad
-    # intertwine with withdrawals and transfers abroad
     def test_can_withdraw_and_transfer_abroad_daily_amount_with_rollover_plus_deposits_after_20200518(self):
         datetimemock = Mock()        
         account = Account() 
@@ -375,17 +382,6 @@ class BankTest(unittest.TestCase):
         result = bank.withdraw_from_account(account, withdrawal_amount)
 
         self.assertEqual(OperationResult.NotAllowed, result)
-
-    def __get_transaction(self, account, condition):
-        for transaction in account.Transactions:
-            if (condition(transaction)):
-                return transaction
-        return None
-
-    def __get_first_transaction(self, account):
-        for transaction in account.Transactions:
-            break
-        return transaction
         
 if __name__ == '__main__':
     unittest.main()
